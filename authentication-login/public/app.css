@@ -1,0 +1,127 @@
+body {
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  background-color: #efefef;
+}
+
+.main {
+  padding: 20px;
+  margin: 10px auto;
+  max-width: 800px;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+  -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+}
+
+.notice {
+  display: none;
+  color: red;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 24px;
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 16px;
+}
+
+.response {
+  background-color: #cdcdcd;
+  padding: 15px;
+  overflow: auto;
+  word-wrap: break-word;
+}
+
+button, .button {
+  font-family: 'Lato', sans-serif;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid #ededed;
+  background-color: #ededed;
+  cursor: pointer;
+}
+
+.providers {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+button div.text, .button div.text {
+  white-space: nowrap;
+}
+
+.providers button {
+  background: transparent;
+  height: 32px;
+  padding: 3px;
+  display: -webkit-flex;
+  display: flex;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.providers button div {
+  display: inline-block;
+  flex: auto;
+  align-self: center;
+}
+
+.providers div.logo {
+  height: 26px;
+  width: 26px;
+}
+
+.providers div.text {
+  padding: 0 10px;
+}
+
+.logout {
+  margin-top: 20px;
+}
+
+button#facebook {
+  background: #4c69ba;
+  background: linear-gradient(#4c69ba, #3b55a0);
+  color: white;
+  border: none;
+}
+
+button#facebook div.logo {
+  background-image: url("images/icons/f.svg");
+  height: 26px;
+  width: 26px;
+}
+
+button#google div.logo {
+  background: url("images/icons/g.svg");
+  height: 22px;
+  width: 22px;
+  margin-left: 2px;
+}
+
+button#microsoft div.logo {
+  background: url("images/icons/ms.png");
+  background-size: 22px 22px;
+  height: 22px;
+  width: 22px;
+  margin-left: 2px;
+}
+
+button#test {
+  margin-bottom: 5px;
+}
+
+a {
+  color: #454545;
+}
