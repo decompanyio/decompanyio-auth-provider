@@ -5,7 +5,7 @@ service: auth-provider
 provider:
   name: aws
   stage: ${opt:stage, 'dev'}
-  region: ${self:provider.environment.REGION, ""}
+  region: ${self:provider.environment.REGION, "us-west-1"}
   environment: ${file(./env.yml):${opt:stage, self:provider.stage}}
   iamRoleStatements:
     - Effect: Allow
@@ -151,6 +151,7 @@ resources:
       Properties:
         Stage: ${self:provider.environment.STAGE}
         DomainName: ${self:provider.environment.REDIRECT_DOMAIN_NAME}
+        BasePath: ${self:provider.environment.BASE_PATH}
         RestApiId:
           Ref: ApiGatewayRestApi
     RedirectRecordSetGroup:

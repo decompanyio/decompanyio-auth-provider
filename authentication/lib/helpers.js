@@ -1,13 +1,13 @@
 const logger = require('log4js').getLogger()
 
-const createResponseData = (id) => {
+const createResponseData = (id, config) => {
   // sets 15 seconds expiration time as an example
   const authorizationToken = {
     payload: {
       id
     },
     options: {
-      expiresIn: 15
+      expiresIn: Number(config.expires_in) || 15
     }
   }
 

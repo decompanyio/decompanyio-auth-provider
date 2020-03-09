@@ -16,15 +16,18 @@ const cache = require('../storage/cacheStorage')
  * @param context
  */
 async function signinHandler(proxyEvent) {
+
   const event = {
     provider: proxyEvent.pathParameters.provider,
     stage: proxyEvent.requestContext.stage,
-    host: proxyEvent.headers.Host
+    host: proxyEvent.headers.Host,
+    returnUrl: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.returnUrl : null
   }
   const providerConfig = config(event)
   let data
   try {
-    const state = await cache.createState()
+    const state = await cache.createState(event.returnUrl)
+    
     switch (event.provider) {
       case 'facebook':
         data = facebook.signinHandler(providerConfig, {
@@ -39,7 +42,7 @@ async function signinHandler(proxyEvent) {
           state
         })
         */
-       data = customGoogle.signinHandler(providerConfig, { state })
+        data = customGoogle.signinHandler(providerConfig, { state })
         break
       case 'microsoft':
         data = microsoft.signinHandler(providerConfig, {

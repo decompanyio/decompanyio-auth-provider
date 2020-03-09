@@ -1,8 +1,8 @@
 
 
-const authenticationEndpoint = 'https://auth.share.decompany.io'
-//const contentApiEndpoint = 'https://msq4brz5o9.execute-api.us-west-1.amazonaws.com/dev'
+const authenticationEndpoint = 'https://localauth.share.decompany.io/local'
 
+// const contentApiEndpoint = 'https://msq4brz5o9.execute-api.us-west-1.amazonaws.com/dev'
 const contentApiEndpoint = 'https://td7tx2gu25.execute-api.us-west-1.amazonaws.com/authtest/api/account/get'
 
 function testToken() {
@@ -95,6 +95,7 @@ $(() => {
     const provider = $(event.currentTarget).attr('id')
     $('#token').html('Loading...')
     $('#test-result').html('Loading...')
+    // window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}?returnUrl=${encodeURI('https://www.naver.com')}`
     window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}`
   })
 

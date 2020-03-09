@@ -33,7 +33,7 @@ const authorize = async (event) => {
       policy = utils.generatePolicy(data.id, 'Allow', event.methodArn)
       policy.context = policyContext(data)
     } catch (err) {
-      console.error(err);
+      console.error(err)
       error = 'Unauthorized'
     }
   } else {

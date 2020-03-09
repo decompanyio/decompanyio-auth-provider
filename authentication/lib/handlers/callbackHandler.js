@@ -58,14 +58,17 @@ function tokenResponse(data, providerConfig) {
  */
 const handleResponse = async ({ profile, state }, providerConfig) => {
   try {
-    await cache.revokeState(state)
-    const tokenSecret = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
-    //console.log(JSON.stringify(profile))
+    const { returnUrl } = await cache.revokeState(state)
 
-    /*const id = createUserId(
+    const tokenSecret = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
+    // console.log(JSON.stringify(profile))
+
+    /*
+    const id = createUserId(
       `${profile.provider}-${profile.id}`,
       tokenSecret
-    )*/
+    )
+    */
 
     const id = profile.id
 
@@ -82,13 +85,22 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
         userContext
       )
     }
+
     const result = await cache.saveRefreshToken(
       id,
       data.authorizationToken.payload
     )
 
+    const expiredAt = Math.floor(Date.now() / 1000) + Number(providerConfig.expires_in || 15)
+    // console.log(Math.floor(Date.now() / 1000), Number(providerConfig.expires_in || 15))
+    let arg1 = Object.assign(data, { refreshToken: result, expiredAt, returnUrl })
+
+    if (!arg1.returnUrl) {
+      delete arg1.returnUrl
+    }
+
     const tokenRes = tokenResponse(
-      Object.assign(data, { refreshToken: result }),
+      arg1,
       Object.assign(providerConfig, { token_secret: tokenSecret })
     )
 
@@ -119,7 +131,7 @@ async function callbackHandler(proxyEvent) {
       response = await facebook.callbackHandler(event, providerConfig)
       break
     case 'google':
-      //response = await google.callbackHandler(event, providerConfig)
+      // response = await google.callbackHandler(event, providerConfig)
       response = await customGoogle.callbackHandler(event, providerConfig)
       break
     case 'microsoft':
