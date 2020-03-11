@@ -25,9 +25,18 @@ const saveUser = async (profile) => {
   // to use cognito user pool as user database enable
   // return cognitoUser.saveOrUpdateUser(profile);
 
-  //return Promise.resolve(true)
+  // return Promise.resolve(true)
+}
+
+const getUser = async (id) => {
+  if (!id) {
+    return Promise.reject(new Error('Invalid id'))
+  }
+
+  return dynamoUser.getUser(id)
 }
 
 module.exports = {
-  saveUser
+  saveUser,
+  getUser
 }

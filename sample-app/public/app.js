@@ -1,6 +1,6 @@
 
 
-const authenticationEndpoint = 'https://localauth.share.decompany.io/local'
+const authenticationEndpoint = 'https://auth.share.decompany.io/local'
 
 // const contentApiEndpoint = 'https://msq4brz5o9.execute-api.us-west-1.amazonaws.com/dev'
 const contentApiEndpoint = 'https://td7tx2gu25.execute-api.us-west-1.amazonaws.com/authtest/api/account/get'
@@ -90,6 +90,40 @@ function getQueryParams(qs) {
   return params
 }
 
+
+function getUserInfo() {
+  const authorizationToken = localStorage.getItem('authorization_token')
+  // console.log('authorizationToken', authorizationToken);
+
+  if (authorizationToken) {
+    $('#test-result').html('Loading...')
+    // set token to Authorization header
+    $.ajax({
+      method: 'GET',
+      // url: `${contentApiEndpoint}/test-token`,
+      url : `${authenticationEndpoint}/authentication/userinfo`,
+      headers: {
+        Authorization: authorizationToken
+      }
+    })
+      .done((data) => {
+        console.log(data);
+        $('#test-result').html(JSON.stringify(data))
+      })
+      .fail(() => {
+        console.log("fail");
+        if ($('#auto-refresh').prop('checked')) {
+          $('#test-result').html('Refreshing token...')
+          refreshToken()
+        } else {
+          $('#test-result').html('Unauthorized')
+        }
+      })
+  } else {
+    $('#test-result').html('Unauthorized')
+  }
+}
+
 $(() => {
   $('.providers button').on('click', (event) => {
     const provider = $(event.currentTarget).attr('id')
@@ -122,4 +156,5 @@ $(() => {
 
   $('.testers #test').on('click', testToken)
   $('.testers #refresh').on('click', refreshToken)
+  $('.testers #userinfo').on('click', getUserInfo)
 })

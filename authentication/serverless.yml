@@ -7,6 +7,7 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${self:provider.environment.REGION, "us-west-1"}
   environment: ${file(./env.yml):${opt:stage, self:provider.stage}}
+  logRetentionInDays: 3
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -78,20 +79,37 @@ functions:
                 }
   authorize:
     handler: handler.authorize
+  userinfo:
+    handler: handler.userinfo
+    memorySize: 256
+    timeout: 15
+    events:
+      - http:
+          path: authentication/userinfo
+          method: get
+          integration: lambda-proxy
+          authorizer: authorize
+          cors: true
 
 plugins:
   - deployment-info
   - serverless-offline
+  - serverless-mocha-plugin
+
 
 resources:
   Description: ${self:provider.environment.SERVICE} [${self:provider.environment.STAGE}] template
   # Condition is used to switch API Gateway custom domain creation
   Conditions:
     CreateCustomDomain:
-      Fn::Not:
-        - Fn::Equals:
-          - ${self:provider.environment.REDIRECT_DOMAIN_NAME, ""}
-          - ""
+      Fn::And: [
+        {"Fn::Not": [{"Fn::Equals": ["${self:provider.environment.REDIRECT_DOMAIN_NAME}", ""]}]},
+        {"Fn::Or": [
+          {"Fn::Equals": ["${self:provider.environment.STAGE}", "dev"]},
+          {"Fn::Equals": ["${self:provider.environment.STAGE}", "asem"]}
+        ]}
+      ]
+      
   Resources:
     #AuthorizationFunctionArnParameter:
     #  Type: AWS::SSM::Parameter
