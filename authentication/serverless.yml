@@ -105,8 +105,8 @@ resources:
       Fn::And: [
         {"Fn::Not": [{"Fn::Equals": ["${self:provider.environment.REDIRECT_DOMAIN_NAME}", ""]}]},
         {"Fn::Or": [
-          {"Fn::Equals": ["${self:provider.environment.REGION}", "dev"]},
-          {"Fn::Equals": ["${self:provider.environment.REGION}", "asem"]}
+          {"Fn::Equals": ["${self:provider.environment.STAGE}", "dev"]},
+          {"Fn::Equals": ["${self:provider.environment.STAGE}", "asem"]}
         ]}
       ]
       
