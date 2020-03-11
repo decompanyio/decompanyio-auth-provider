@@ -33,10 +33,12 @@ const authorize = async (event) => {
       policy = utils.generatePolicy(data.id, 'Allow', event.methodArn)
       policy.context = policyContext(data)
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(err)
       error = 'Unauthorized'
     }
   } else {
+    // eslint-disable-next-line no-console
     console.error('Authorization is nothing!!')
     error = 'Unauthorized'
   }

@@ -18,9 +18,11 @@
     "js-yaml": "^3.12.0",
     "lodash": "^4.17.10",
     "serverless-dynamodb-local": "^0.2.10",
+    "serverless-mocha-plugin": "^1.11.0",
     "serverless-offline": "^5.12.1"
   },
   "scripts": {
-    "deploy:dev": "sls deploy -s dev -r us-west-1"
+    "deploy:local": "sls deploy -s local",
+    "deploy:dev": "sls deploy -s dev"
   }
 }

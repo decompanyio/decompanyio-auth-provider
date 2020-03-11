@@ -4,9 +4,9 @@ const { config, utils } = require('serverless-authentication')
 
 // Providers
 const facebook = require('serverless-authentication-facebook')
-const google = require('serverless-authentication-google')
+// const google = require('serverless-authentication-google')
 const microsoft = require('serverless-authentication-microsoft')
-const crypto = require('crypto')
+// const crypto = require('crypto')
 const customGoogle = require('../custom-google')
 
 // Common
@@ -16,11 +16,13 @@ const users = require('../storage/usersStorage')
 const { createResponseData } = require('../helpers')
 const { getTokenSecret } = require('../utils/token')
 
+/*
 function createUserId(data, secret) {
   const hmac = crypto.createHmac('sha256', secret)
   hmac.update(data)
   return hmac.digest('hex')
 }
+*/
 
 /**
  * Error response
@@ -93,7 +95,7 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
 
     const expiredAt = Math.floor(Date.now() / 1000) + Number(providerConfig.expires_in || 15)
     // console.log(Math.floor(Date.now() / 1000), Number(providerConfig.expires_in || 15))
-    let arg1 = Object.assign(data, { refreshToken: result, expiredAt, returnUrl })
+    const arg1 = Object.assign(data, { refreshToken: result, expiredAt, returnUrl })
 
     if (!arg1.returnUrl) {
       delete arg1.returnUrl

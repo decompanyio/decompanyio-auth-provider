@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk')
 
 const config = {
-  region: process.env.REGION || 'eu-west-1'
+  region: process.env.REGION || 'us-west-1'
 }
 
 const dynamodb = new AWS.DynamoDB.DocumentClient(config)
@@ -27,6 +27,21 @@ const saveUser = async (profile) => {
   return dynamodb.put(params).promise()
 }
 
+const getUser = async (id) => {
+  const params = {
+    TableName: process.env.USERS_DB_NAME,
+    KeyConditionExpression: '#userId = :userId',
+    ExpressionAttributeNames: {
+      '#userId': 'userId'
+    },
+    ExpressionAttributeValues: {
+      ':userId': id
+    }
+  }
+  return dynamodb.query(params).promise()
+}
+
 module.exports = {
-  saveUser
+  saveUser,
+  getUser
 }
