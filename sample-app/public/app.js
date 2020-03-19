@@ -130,7 +130,17 @@ $(() => {
     $('#token').html('Loading...')
     $('#test-result').html('Loading...')
     // window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}?returnUrl=${encodeURI('https://www.naver.com')}`
-    window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}`
+    // window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}`
+    
+    // https://developers.google.com/identity/protocols/oauth2/web-server
+    // prompt: [none, consent, select_account]
+    if (provider === 'google-offline') {
+      window.location.href = `${authenticationEndpoint}/authentication/signin/google?prompt=none`
+    } else {
+      window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}`
+      
+    }
+    
   })
 
   $('#logout').on('click', (event) => {

@@ -60,7 +60,9 @@ function tokenResponse(data, providerConfig) {
  */
 const handleResponse = async ({ profile, state }, providerConfig) => {
   try {
-    const { returnUrl } = await cache.revokeState(state)
+    const { opts } = await cache.revokeState(state)
+    const { returnUrl } = opts
+    // console.log('callback handleResponse', returnUrl, opts)
 
     const tokenSecret = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
     // console.log(JSON.stringify(profile))
@@ -123,7 +125,8 @@ async function callbackHandler(proxyEvent) {
     stage: proxyEvent.requestContext.stage,
     host: proxyEvent.headers.Host,
     code: proxyEvent.queryStringParameters.code,
-    state: proxyEvent.queryStringParameters.state
+    state: proxyEvent.queryStringParameters.state,
+    error: proxyEvent.queryStringParameters.error
   }
 
   const providerConfig = config(event)

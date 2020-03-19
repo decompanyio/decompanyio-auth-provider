@@ -20,12 +20,18 @@ async function signinHandler(proxyEvent) {
     provider: proxyEvent.pathParameters.provider,
     stage: proxyEvent.requestContext.stage,
     host: proxyEvent.headers.Host,
-    returnUrl: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.returnUrl : null
+    returnUrl: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.returnUrl : null,
+    prompt: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.prompt : null,
+    login_hint: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.login_hint : null
   }
   const providerConfig = config(event)
   let data
   try {
-    const state = await cache.createState(event.returnUrl)
+    const state = await cache.createState({
+      returnUrl: event.returnUrl,
+      prompt: event.prompt,
+      login_hint: event.login_hint
+    })
 
     switch (event.provider) {
       case 'facebook':
@@ -41,7 +47,7 @@ async function signinHandler(proxyEvent) {
           state
         })
         */
-        data = customGoogle.signinHandler(providerConfig, { state })
+        data = customGoogle.signinHandler(providerConfig, { state, prompt: event.prompt, login_hint: event.login_hint })
         break
       case 'microsoft':
         data = microsoft.signinHandler(providerConfig, {
@@ -62,6 +68,8 @@ async function signinHandler(proxyEvent) {
   } catch (exception) {
     data = utils.errorResponse({ exception }, providerConfig)
   }
+
+  
   return {
     statusCode: 302,
     headers: {

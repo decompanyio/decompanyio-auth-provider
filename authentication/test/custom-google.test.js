@@ -1,10 +1,10 @@
-const { utils, config } = require('../authentication/serverless-authentication')
+const { utils, config } = require('serverless-authentication')
 const AWS = require('aws-sdk')
 const nock = require('nock')
 const url = require('url')
-const refreshHandler = require('../authentication/lib/handlers/refreshHandler')
-const callbackHandler = require('../authentication/lib/handlers/callbackHandler')
-const signinHandler = require('../authentication/lib/handlers/signinHandler')
+const refreshHandler = require('../lib/handlers/refreshHandler')
+const callbackHandler = require('../lib/handlers/callbackHandler')
+const signinHandler = require('../lib/handlers/signinHandler')
 
 jest.mock('aws-sdk', () => {
   const mocks = {
@@ -44,6 +44,10 @@ jest.mock('aws-sdk', () => {
     })
   }
 
+  const KMS = () => {
+
+  }
+
   const CognitoIdentityServiceProvider = {
     adminCreateUser: (obj) => ({
       promise: () => mocks.adminCreateUserMock(obj)
@@ -58,6 +62,7 @@ jest.mock('aws-sdk', () => {
 
   return {
     mocks,
+    KMS: jest.fn().mockImplementation(() => KMS),
     DynamoDB: {
       DocumentClient: jest.fn().mockImplementation(() => DocumentClient)
     },

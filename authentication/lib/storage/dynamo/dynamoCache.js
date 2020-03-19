@@ -15,16 +15,15 @@ function hash() {
 /**
  * Creates OAuth State
  */
-const createState = async (returnUrl) => {
+const createState = async (opts) => {
   const state = hash()
   const params = {
     TableName: process.env.CACHE_DB_NAME,
-    Item: {
+    Item: Object.assign({
       token: state,
       type: 'STATE',
-      expired: false,
-      returnUrl
-    }
+      expired: false
+    }, { opts })
   }
 
   return dynamodb
@@ -40,7 +39,7 @@ const revokeState = async (state) => new Promise((resolve, reject) => {
   const queryToken = async () => {
     const params = {
       TableName: process.env.CACHE_DB_NAME,
-      ProjectionExpression: '#token, #type, Expired, returnUrl',
+      ProjectionExpression: '#token, #type, Expired, returnUrl, opts',
       KeyConditionExpression: '#token = :token and #type = :type',
       ExpressionAttributeNames: {
         '#token': 'token',
