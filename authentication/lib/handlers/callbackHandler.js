@@ -61,8 +61,14 @@ function tokenResponse(data, providerConfig) {
 const handleResponse = async ({ profile, state }, providerConfig) => {
   try {
     const { opts } = await cache.revokeState(state)
-    const { returnUrl } = opts
+    const { returnUrl, redirectUrl } = opts
     // console.log('callback handleResponse', returnUrl, opts)
+
+    console.log('REDIRECT_CLIENT_URIS', providerConfig)
+    const redirect_client_uris = providerConfig.redirect_client_uris?providerConfig.redirect_client_uris:[]
+    if( redirectUrl && !redirect_client_uris.includes(redirectUrl) ){
+      throw new Error(`redirect uri is not vaild : ${redirectUrl}`)
+    }
 
     const tokenSecret = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
     // console.log(JSON.stringify(profile))
@@ -104,7 +110,7 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
 
     const tokenRes = tokenResponse(
       arg1,
-      Object.assign(providerConfig, { token_secret: tokenSecret })
+      Object.assign(providerConfig, { token_secret: tokenSecret, custom_redirect_url: redirectUrl })
     )
 
     return tokenRes

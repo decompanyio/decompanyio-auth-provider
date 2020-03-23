@@ -20,6 +20,7 @@ async function signinHandler(proxyEvent) {
     provider: proxyEvent.pathParameters.provider,
     stage: proxyEvent.requestContext.stage,
     host: proxyEvent.headers.Host,
+    redirectUrl: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.redirectUrl : null,
     returnUrl: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.returnUrl : null,
     prompt: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.prompt : null,
     login_hint: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.login_hint : null
@@ -30,7 +31,8 @@ async function signinHandler(proxyEvent) {
     const state = await cache.createState({
       returnUrl: event.returnUrl,
       prompt: event.prompt,
-      login_hint: event.login_hint
+      login_hint: event.login_hint,
+      redirectUrl: event.redirectUrl
     })
 
     switch (event.provider) {
@@ -49,10 +51,10 @@ async function signinHandler(proxyEvent) {
         */
        const params = { state }
        if(event.prompt){
-         parmas.prompt = event.prompt
+          params.prompt = event.prompt
        }
        if(event.login_hint) {
-         params.login_hint = event.login_hint
+          params.login_hint = event.login_hint
        }
         data = customGoogle.signinHandler(providerConfig, params)
         break
