@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "aws-sdk": "^2.641.0",
     "async": "^2.6.0",
+    "aws-sdk": "^2.641.0",
     "bluebird": "^3.5.1",
     "decamelize": "^2.0.0",
     "faunadb": "^2.5.0",
     "jsonwebtoken": "^8.2.1",
     "log4js": "^3.0.5",
     "request": "^2.85.0",
-    "serverless-authentication": "^0.6.3",
+    "serverless-authentication": "file:../../serverless-authentication",
     "serverless-authentication-facebook": "^0.6.0",
     "serverless-authentication-google": "^0.6.0",
     "serverless-authentication-microsoft": "^0.6.0"
