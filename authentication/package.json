@@ -11,6 +11,7 @@
     "jsonwebtoken": "^8.2.1",
     "log4js": "^3.0.5",
     "request": "^2.85.0",
+    "serverless-authentication": "^0.6.3",
     "serverless-authentication-facebook": "^0.6.0",
     "serverless-authentication-google": "^0.6.0",
     "serverless-authentication-microsoft": "^0.6.0"
@@ -26,7 +27,6 @@
     "js-yaml": "^3.12.0",
     "lodash": "^4.17.10",
     "nock": "^12.0.3",
-    "serverless-authentication": "file:../../serverless-authentication",
     "serverless-dynamodb-local": "^0.2.10",
     "serverless-mocha-plugin": "^1.11.0",
     "serverless-offline": "^5.12.1"

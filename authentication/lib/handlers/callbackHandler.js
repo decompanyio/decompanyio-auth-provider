@@ -73,7 +73,6 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
       tokenSecret
     )
     */
-
     const id = profile.id
 
     const data = createResponseData(id, providerConfig)
@@ -110,6 +109,7 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
 
     return tokenRes
   } catch (exception) {
+    console.error(exception)
     return errorResponse({ error: exception }, providerConfig)
   }
 }

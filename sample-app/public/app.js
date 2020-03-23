@@ -21,6 +21,10 @@ function testToken() {
       }
     })
       .done((data) => {
+        console.log(data)
+        if(data.user){
+          saveUserInfo(data.user.email)
+        }
         $('#test-result').html(JSON.stringify(data))
       })
       .fail((error) => {
@@ -32,14 +36,13 @@ function testToken() {
         }
       })
   } else {
-    console.log('22222222')
     $('#test-result').html('Unauthorized')
   }
 }
 
 function refreshToken() {
   $('#test-result').html('Loading...')
-  console.log('refreshToken')
+  
   // refresh token
   $.ajax({
     method: 'GET',
@@ -56,6 +59,11 @@ function refreshToken() {
     .fail((error) => {
       $('#test-result').html('Unauthorized')
     })
+}
+function saveUserInfo(email) {
+  if(email) {
+    localStorage.setItem('email', email)
+  }
 }
 
 function saveResponse(authorization_token, refresh_token) {
@@ -107,7 +115,7 @@ function getUserInfo() {
       }
     })
       .done((data) => {
-        console.log(data);
+        console.log(data);          
         $('#test-result').html(JSON.stringify(data))
       })
       .fail(() => {
@@ -135,7 +143,7 @@ $(() => {
     // https://developers.google.com/identity/protocols/oauth2/web-server
     // prompt: [none, consent, select_account]
     if (provider === 'google-offline') {
-      window.location.href = `${authenticationEndpoint}/authentication/signin/google?prompt=none`
+      window.location.href = `${authenticationEndpoint}/authentication/signin/google?prompt=none&login_hint=${localStorage.getItem('email')}`
     } else {
       window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}`
       
@@ -146,6 +154,7 @@ $(() => {
   $('#logout').on('click', (event) => {
     localStorage.removeItem('authorization_token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('email')
     window.location.href = getPathFromUrl(window.location.href)
   })
 
@@ -154,6 +163,7 @@ $(() => {
     $('#token').html(query.error)
     localStorage.removeItem('authorization_token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('email')
   } else {
     const aToken = query.authorization_token || ''
     const rToken = query.refresh_token || ''

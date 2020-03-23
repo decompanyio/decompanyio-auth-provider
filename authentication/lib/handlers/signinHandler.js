@@ -47,7 +47,14 @@ async function signinHandler(proxyEvent) {
           state
         })
         */
-        data = customGoogle.signinHandler(providerConfig, { state, prompt: event.prompt, login_hint: event.login_hint })
+       const params = { state }
+       if(event.prompt){
+         parmas.prompt = event.prompt
+       }
+       if(event.login_hint) {
+         params.login_hint = event.login_hint
+       }
+        data = customGoogle.signinHandler(providerConfig, params)
         break
       case 'microsoft':
         data = microsoft.signinHandler(providerConfig, {
