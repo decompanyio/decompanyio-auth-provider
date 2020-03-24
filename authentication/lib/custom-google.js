@@ -7,14 +7,23 @@ const signinHandler = (config, options) => {
   signinOptions.scope = 'openid profile email'
   signinOptions.response_type = 'code'
   // signinOptions.response_type = 'token'
+  // signinOptions.access_type = 'offline'
   return customGoogle.signin(signinOptions)
 }
 
 const callbackHandler = async (event, config) => {
+  /*
+  if (event.error) {
+    console.log("error event", JSON.stringify(event))
+    throw new Error(event.error)
+  }
+  */
+
   const customGoogle = new Provider(config)
   const profileMap = (response) => {
     const id = response.resourceName.split('/')[1]
     if (response.error) {
+      console.log("error", response)
       throw new Error(JSON.stringify(response.error))
     }
 

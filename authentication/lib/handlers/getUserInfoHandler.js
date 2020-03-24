@@ -1,7 +1,5 @@
 /* eslint-disable prefer-destructuring */
 // Config
-const { config, utils } = require('serverless-authentication')
-
 const users = require('../storage/usersStorage')
 
 

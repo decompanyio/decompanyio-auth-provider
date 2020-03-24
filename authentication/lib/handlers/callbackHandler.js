@@ -60,7 +60,15 @@ function tokenResponse(data, providerConfig) {
  */
 const handleResponse = async ({ profile, state }, providerConfig) => {
   try {
-    const { returnUrl } = await cache.revokeState(state)
+    const { opts } = await cache.revokeState(state)
+    const { returnUrl, redirectUrl } = opts
+    // console.log('callback handleResponse', returnUrl, opts)
+
+    console.log('REDIRECT_CLIENT_URIS', providerConfig)
+    const redirect_client_uris = providerConfig.redirect_client_uris?providerConfig.redirect_client_uris:[]
+    if( redirectUrl && !redirect_client_uris.includes(redirectUrl) ){
+      throw new Error(`redirect uri is not vaild : ${redirectUrl}`)
+    }
 
     const tokenSecret = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
     // console.log(JSON.stringify(profile))
@@ -71,7 +79,6 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
       tokenSecret
     )
     */
-
     const id = profile.id
 
     const data = createResponseData(id, providerConfig)
@@ -103,11 +110,12 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
 
     const tokenRes = tokenResponse(
       arg1,
-      Object.assign(providerConfig, { token_secret: tokenSecret })
+      Object.assign(providerConfig, { token_secret: tokenSecret, custom_redirect_url: redirectUrl })
     )
 
     return tokenRes
   } catch (exception) {
+    console.error(exception)
     return errorResponse({ error: exception }, providerConfig)
   }
 }
@@ -123,7 +131,8 @@ async function callbackHandler(proxyEvent) {
     stage: proxyEvent.requestContext.stage,
     host: proxyEvent.headers.Host,
     code: proxyEvent.queryStringParameters.code,
-    state: proxyEvent.queryStringParameters.state
+    state: proxyEvent.queryStringParameters.state,
+    error: proxyEvent.queryStringParameters.error
   }
 
   const providerConfig = config(event)
