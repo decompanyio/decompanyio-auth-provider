@@ -1,9 +1,11 @@
 
 
-const authenticationEndpoint = 'https://auth.share.decompany.io/local'
+const authenticationEndpoint = 'https://auth.share.decompany.io/dev'
 
 // const contentApiEndpoint = 'https://msq4brz5o9.execute-api.us-west-1.amazonaws.com/dev'
-const contentApiEndpoint = 'https://td7tx2gu25.execute-api.us-west-1.amazonaws.com/authtest/api/account/get'
+// const contentApiEndpoint = 'https://td7tx2gu25.execute-api.us-west-1.amazonaws.com/authtest/api/account/get'
+const contentApiEndpoint = ' https://api.share.decompany.io/rest/api/account/get'
+const contentApiEndpoint2 = ' https://api.share.decompany.io/rest/api/account/documents'
 
 function testToken() {
   const authorizationToken = localStorage.getItem('authorization_token')
@@ -16,6 +18,41 @@ function testToken() {
       method: 'GET',
       //url: `${contentApiEndpoint}/test-token`,
       url : `${contentApiEndpoint}`,
+      headers: {
+        Authorization: authorizationToken
+      }
+    })
+      .done((data) => {
+        console.log(data)
+        if(data.user){
+          saveUserInfo(data.user.email)
+        }
+        $('#test-result').html(JSON.stringify(data))
+      })
+      .fail((error) => {
+        if ($('#auto-refresh').prop('checked')) {
+          $('#test-result').html('Refreshing token...')
+          refreshToken()
+        } else {
+          $('#test-result').html('Unauthorized')
+        }
+      })
+  } else {
+    $('#test-result').html('Unauthorized')
+  }
+}
+
+function testToken2() {
+  const authorizationToken = localStorage.getItem('authorization_token')
+  //console.log('authorizationToken', authorizationToken);
+
+  if (authorizationToken) {
+    $('#test-result').html('Loading...')
+    // set token to Authorization header
+    $.ajax({
+      method: 'GET',
+      //url: `${contentApiEndpoint}/test-token`,
+      url : `${contentApiEndpoint2}`,
       headers: {
         Authorization: authorizationToken
       }
@@ -53,7 +90,7 @@ function refreshToken() {
         $('#test-result').html(data.errorMessage)
       } else {
         saveResponse(data.authorization_token, data.refresh_token)
-        testToken()
+        testToken2()
       }
     })
     .fail((error) => {
@@ -66,7 +103,7 @@ function saveUserInfo(email) {
   }
 }
 
-function saveResponse(authorization_token, refresh_token) {
+function saveResponse(authorization_token, refresh_token, expired_at) {
   // Save token to local storage for later use
   if (authorization_token) {
     localStorage.setItem('authorization_token', authorization_token)
@@ -75,7 +112,12 @@ function saveResponse(authorization_token, refresh_token) {
     localStorage.setItem('refresh_token', refresh_token)
   }
 
-  $('#token').html(`authorization_token:${localStorage.getItem('authorization_token')}<hr>refresh_token:${localStorage.getItem('refresh_token')}`)
+  if (expired_at) {
+    const expiredAt = new Date(expired_at * 1000);
+    localStorage.setItem('expired_at', expiredAt.toString())
+  }
+
+  $('#token').html(`authorization_token: ${localStorage.getItem('authorization_token')}<hr>refresh_token: ${localStorage.getItem('refresh_token')}<hr>expiredAt: ${localStorage.getItem('expired_at')}`)
 }
 
 function getPathFromUrl(url) {
@@ -142,10 +184,10 @@ $(() => {
     
     // https://developers.google.com/identity/protocols/oauth2/web-server
     // prompt: [none, consent, select_account]
-    if (provider === 'google-offline') {
-      window.location.href = `${authenticationEndpoint}/authentication/signin/google?prompt=none&login_hint=${localStorage.getItem('email')}`
+    if (provider === 'google-silent') {
+      window.location.href = `${authenticationEndpoint}/authentication/signin/google?prompt=none&login_hint=${localStorage.getItem('email')}&redirectUrl=http://127.0.0.1:3000/callback`
     } else {
-      window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}`
+      window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}?redirectUrl=http://127.0.0.1:3000/callback`
       
     }
     
@@ -167,14 +209,16 @@ $(() => {
   } else {
     const aToken = query.authorization_token || ''
     const rToken = query.refresh_token || ''
-    saveResponse(aToken, rToken)
+    const expiredAt = query.expired_at || 0
+    saveResponse(aToken, rToken, expiredAt)
     window.history.replaceState({ authorization_token: '' }, 'serverless-authentication-gh-pages', '/serverless-authentication-gh-pages')
 
     // trigger test token
-    testToken()
+    testToken2()
   }
 
   $('.testers #test').on('click', testToken)
+  $('.testers #test2').on('click', testToken2)
   $('.testers #refresh').on('click', refreshToken)
   $('.testers #userinfo').on('click', getUserInfo)
 })

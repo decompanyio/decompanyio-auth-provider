@@ -20,6 +20,7 @@ const authorize = async (event) => {
   let error = null
   let policy
   const { authorizationToken } = event
+  
   if (authorizationToken) {
     try {
       // this example uses simple expiration time validation
@@ -27,9 +28,14 @@ const authorize = async (event) => {
 
       if (!TOKEN_SECRET) {
         TOKEN_SECRET = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
+      } 
+      
+      
+      if(!TOKEN_SECRET) {
+        throw new Error('TOKEN_SECRET is null')
       }
-      const data = utils.readToken(authorizationToken, TOKEN_SECRET)
 
+      const data = utils.readToken(authorizationToken, TOKEN_SECRET)
       policy = utils.generatePolicy(data.id, 'Allow', event.methodArn)
       policy.context = policyContext(data)
     } catch (err) {
@@ -43,6 +49,7 @@ const authorize = async (event) => {
     error = 'Unauthorized'
   }
   if (error) {
+    console.log('error unauthorized')
     throw new Error(error)
   }
   return Promise.resolve(policy)
