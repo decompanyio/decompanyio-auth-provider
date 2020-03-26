@@ -6,6 +6,7 @@ provider:
   name: aws
   stage: ${opt:stage, 'dev'}
   region: ${self:provider.environment.REGION, "us-west-1"}
+  endpointType: REGIONAL
   environment: ${file(./env.yml):${opt:stage, self:provider.stage}}
   logRetentionInDays: 3
   iamRoleStatements:
@@ -102,14 +103,19 @@ resources:
   # Condition is used to switch API Gateway custom domain creation
   Conditions:
     CreateCustomDomain:
-      Fn::And: [
-        {"Fn::Not": [{"Fn::Equals": ["${self:provider.environment.REDIRECT_DOMAIN_NAME}", ""]}]},
-        {"Fn::Or": [
-          {"Fn::Equals": ["${self:provider.environment.STAGE}", "dev"]},
-          {"Fn::Equals": ["${self:provider.environment.STAGE}", "asem"]}
-        ]}
-      ]
-      
+      Fn::And: 
+        - Fn::Not:
+          - Fn::Equals:
+              - ${self:provider.environment.REDIRECT_DOMAIN_NAME, ""}
+              - ""
+        - Fn::Or:
+          - Fn::Equals: 
+              - ${self:provider.environment.STAGE, ""}
+              - "dev"
+          - Fn::Equals:
+              - ${self:provider.environment.STAGE, ""}
+              - "asem"
+ 
   Resources:
     #AuthorizationFunctionArnParameter:
     #  Type: AWS::SSM::Parameter
@@ -161,11 +167,24 @@ resources:
       Condition: CreateCustomDomain
       Properties:
         DomainName: ${self:provider.environment.REDIRECT_DOMAIN_NAME}
-        CertificateArn: ${self:provider.environment.REDIRECT_CERTIFICATE_ARN}
+        EndpointConfiguration: 
+          Types:
+            - REGIONAL
+        RegionalCertificateArn: ${self:provider.environment.REDIRECT_CERTIFICATE_ARN}
+    
+    ApiGatewayDeployment:
+      Type: "AWS::ApiGateway::Deployment"
+      DependsOn: UserinfoLambdaFunction # This can be any one Method on the API
+      Properties:
+        Description: ${self:provider.environment.STAGE} Environment
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        StageName: ${self:provider.environment.STAGE}
+
     RedirectBasePathMapping:
       Type: AWS::ApiGateway::BasePathMapping
       Condition: CreateCustomDomain
-      DependsOn: RedirectDomainName
+      DependsOn: ApiGatewayDeployment
       Properties:
         Stage: ${self:provider.environment.STAGE}
         DomainName: ${self:provider.environment.REDIRECT_DOMAIN_NAME}
@@ -181,8 +200,8 @@ resources:
         - Name: ${self:provider.environment.REDIRECT_DOMAIN_NAME}
           Type: A
           AliasTarget:
-            HostedZoneId: Z2FDTNDATAQYW2 # don't change -> https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-hostedzoneid
+            HostedZoneId: Z2MUQ32089INYE # don't change -> https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-hostedzoneid
             DNSName:
               Fn::GetAtt:
                 - RedirectDomainName
-                - DistributionDomainName
+                - RegionalDomainName
