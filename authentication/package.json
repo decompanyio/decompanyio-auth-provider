@@ -27,13 +27,17 @@
     "js-yaml": "^3.12.0",
     "lodash": "^4.17.10",
     "nock": "^12.0.3",
+    "serverless-domain-manager": "^3.3.1",
     "serverless-dynamodb-local": "^0.2.10",
     "serverless-mocha-plugin": "^1.11.0",
     "serverless-offline": "^5.12.1"
   },
   "scripts": {
+    "create_domain:dev": "sls create_domain -s dev",
+    "create_domain:asem": "sls create_domain -s asem",
     "deploy:local": "sls deploy -s local",
     "deploy:dev": "sls deploy -s dev",
+    "deploy:asem": "sls deploy -s asem",
     "test": "jest ./test"
   }
 }

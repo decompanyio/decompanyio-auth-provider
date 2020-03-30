@@ -16,6 +16,8 @@ const users = require('../storage/usersStorage')
 const { createResponseData } = require('../helpers')
 const { getTokenSecret } = require('../utils/token')
 
+let tokenSecret;
+
 /*
 function createUserId(data, secret) {
   const hmac = crypto.createHmac('sha256', secret)
@@ -59,6 +61,7 @@ function tokenResponse(data, providerConfig) {
  * @param state
  */
 const handleResponse = async ({ profile, state }, providerConfig) => {
+  let custom_redirect_url
   try {
     const { opts } = await cache.revokeState(state)
     const { returnUrl, redirectUrl } = opts
@@ -67,8 +70,13 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
     if( redirectUrl && !redirect_client_uris.includes(redirectUrl) ){
       throw new Error(`redirect uri is not vaild : ${redirectUrl}`)
     }
+    custom_redirect_url = redirectUrl;
+ 
 
-    const tokenSecret = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
+    if(!tokenSecret){
+      tokenSecret = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
+    }
+    
     // console.log(JSON.stringify(profile))
 
     /*
@@ -109,13 +117,13 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
 
     const tokenRes = tokenResponse(
       arg1,
-      Object.assign(providerConfig, { token_secret: tokenSecret, custom_redirect_url: redirectUrl })
+      Object.assign(providerConfig, { token_secret: tokenSecret, custom_redirect_url: custom_redirect_url })
     )
 
     return tokenRes
   } catch (exception) {
     console.error(exception)
-    return errorResponse({ error: exception }, providerConfig)
+    return errorResponse({ error: exception }, Object.assign(providerConfig, { token_secret: tokenSecret, custom_redirect_url: custom_redirect_url }))
   }
 }
 

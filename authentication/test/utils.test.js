@@ -1,8 +1,9 @@
 const { utils, config } = require('serverless-authentication')
 
-describe('utils test', () => {
-  describe('test', () => {
+describe('token_secret test', () => {
+  describe('encrypt', () => {
     beforeAll(() => {
+      
     })
 
     it('test impliments urlBuilder', async () => {

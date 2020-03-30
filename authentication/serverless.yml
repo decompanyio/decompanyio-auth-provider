@@ -96,37 +96,22 @@ plugins:
   - deployment-info
   - serverless-offline
   - serverless-mocha-plugin
+  - serverless-domain-manager
 
+custom:
+  customDomain: 
+    domainName: ${self:provider.environment.REDIRECT_DOMAIN_NAME, ""}
+    stage: ${self:provider.environment.STAGE}
+    basePath: ${self:provider.environment.BASE_PATH}
+    certificateArn: ${self:provider.environment.REDIRECT_CERTIFICATE_ARN}
+    createRoute53Record: true
+    endpointType: 'regional'
+    securityPolicy: tls_1_2
+    enabled: true
 
 resources:
   Description: ${self:provider.environment.SERVICE} [${self:provider.environment.STAGE}] template
-  # Condition is used to switch API Gateway custom domain creation
-  Conditions:
-    CreateCustomDomain:
-      Fn::And: 
-        - Fn::Not:
-          - Fn::Equals:
-              - ${self:provider.environment.REDIRECT_DOMAIN_NAME, ""}
-              - ""
-        - Fn::Or:
-          - Fn::Equals: 
-              - ${self:provider.environment.STAGE, ""}
-              - "dev"
-          - Fn::Equals:
-              - ${self:provider.environment.STAGE, ""}
-              - "asem"
- 
   Resources:
-    #AuthorizationFunctionArnParameter:
-    #  Type: AWS::SSM::Parameter
-    #  Properties:
-    #    Name: "/authentication/${self:provider.environment.STAGE}/authorization-function-arn"
-    #    Type: "String"
-    #    Value:
-    #      Fn::GetAtt:
-    #        - AuthorizeLambdaFunction
-    #        - Arn
-    #    Description: "SSM Parameter for Authorization function arn"
     CacheTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -160,48 +145,3 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.USERS_DB_NAME}
-
-# API Gateway Custom domain is created if "REDIRECT_DOMAIN_NAME" is defined in the env.yml
-    RedirectDomainName:
-      Type: AWS::ApiGateway::DomainName
-      Condition: CreateCustomDomain
-      Properties:
-        DomainName: ${self:provider.environment.REDIRECT_DOMAIN_NAME}
-        EndpointConfiguration: 
-          Types:
-            - REGIONAL
-        RegionalCertificateArn: ${self:provider.environment.REDIRECT_CERTIFICATE_ARN}
-    
-    ApiGatewayDeployment:
-      Type: "AWS::ApiGateway::Deployment"
-      DependsOn: UserinfoLambdaFunction # This can be any one Method on the API
-      Properties:
-        Description: ${self:provider.environment.STAGE} Environment
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        StageName: ${self:provider.environment.STAGE}
-
-    RedirectBasePathMapping:
-      Type: AWS::ApiGateway::BasePathMapping
-      Condition: CreateCustomDomain
-      DependsOn: ApiGatewayDeployment
-      Properties:
-        Stage: ${self:provider.environment.STAGE}
-        DomainName: ${self:provider.environment.REDIRECT_DOMAIN_NAME}
-        BasePath: ${self:provider.environment.BASE_PATH}
-        RestApiId:
-          Ref: ApiGatewayRestApi
-    RedirectRecordSetGroup:
-      Type: AWS::Route53::RecordSetGroup
-      Condition: CreateCustomDomain
-      Properties:
-        HostedZoneId: ${self:provider.environment.REDIRECT_HOSTED_ZONE_ID}
-        RecordSets:
-        - Name: ${self:provider.environment.REDIRECT_DOMAIN_NAME}
-          Type: A
-          AliasTarget:
-            HostedZoneId: Z2MUQ32089INYE # don't change -> https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-hostedzoneid
-            DNSName:
-              Fn::GetAtt:
-                - RedirectDomainName
-                - RegionalDomainName
