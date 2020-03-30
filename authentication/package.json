@@ -33,8 +33,8 @@
     "serverless-offline": "^5.12.1"
   },
   "scripts": {
-    "create_domain:dev": "sls create_domain -s dev",
-    "create_domain:asem": "sls create_domain -s asem",
+    "createDomain:dev": "sls create_domain -s dev",
+    "createDomain:asem": "sls create_domain -s asem",
     "deploy:local": "sls deploy -s local",
     "deploy:dev": "sls deploy -s dev",
     "deploy:asem": "sls deploy -s asem",

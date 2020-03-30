@@ -21,11 +21,16 @@ const callbackHandler = async (event, config) => {
 
   const customGoogle = new Provider(config)
   const profileMap = (response) => {
-    const id = response.resourceName.split('/')[1]
+    //console.log("profileMap", JSON.stringify(response))
     if (response.error) {
       console.log("error", response)
       throw new Error(JSON.stringify(response.error))
     }
+
+    if(!response.resourceName){
+      throw new Error('Error Getting Google ID')
+    }
+    const id = response.resourceName?response.resourceName.split('/')[1]:null;  
 
     return new Profile({
       id: 'google-oauth2|'.concat(id),
