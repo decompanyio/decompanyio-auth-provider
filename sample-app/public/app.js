@@ -1,11 +1,12 @@
 
 
 const authenticationEndpoint = 'https://auth.share.decompany.io/dev'
+//const authenticationEndpoint = 'https://auth.polarishare.com/asem'
 
 // const contentApiEndpoint = 'https://msq4brz5o9.execute-api.us-west-1.amazonaws.com/dev'
 // const contentApiEndpoint = 'https://td7tx2gu25.execute-api.us-west-1.amazonaws.com/authtest/api/account/get'
-const contentApiEndpoint = ' https://api.share.decompany.io/rest/api/account/get'
-const contentApiEndpoint2 = ' https://api.share.decompany.io/rest/api/account/documents'
+const contentApiEndpoint = 'https://api.share.decompany.io/rest/api/account/get'
+const contentApiEndpoint2 = 'https://api.share.decompany.io/rest/api/account/documents'
 
 function testToken() {
   const authorizationToken = localStorage.getItem('authorization_token')

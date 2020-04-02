@@ -49,5 +49,5 @@ _meta
 **/.serverless
 
 #My List
-token_secret*
+token_secret.*
 env.yml
