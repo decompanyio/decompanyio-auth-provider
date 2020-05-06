@@ -11,7 +11,7 @@ const client = new faunadb.Client(config)
 const crypto = require('crypto')
 const Promise = require('bluebird')
 
-const { log } = require('../../helpers')
+const { log } = require('../../utils/helpers')
 
 function hash() {
   return crypto.randomBytes(48).toString('hex')

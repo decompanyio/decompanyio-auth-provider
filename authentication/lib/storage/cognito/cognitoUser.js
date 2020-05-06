@@ -2,7 +2,7 @@
 
 const AWS = require('aws-sdk')
 
-const { log } = require('../../helpers')
+const { log } = require('../../utils/helpers')
 
 const cognitoIdentityServiceProvider =
   new AWS.CognitoIdentityServiceProvider()

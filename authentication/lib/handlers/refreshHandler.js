@@ -3,7 +3,7 @@ const { config, utils } = require('serverless-authentication')
 
 // Common
 const cache = require('../storage/cacheStorage')
-const { createResponseData } = require('../helpers')
+const { createResponseData } = require('../utils/helpers')
 const { getTokenSecret } = require('../utils/token')
 /**
  * Refresh Handler

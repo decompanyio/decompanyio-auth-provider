@@ -40,6 +40,33 @@ package:
 # Functions
 
 functions:
+  main:
+    handler: handler.main
+    memorySize: 256
+    timeout: 15
+    events:
+      - http:
+          path: authentication
+          method: get
+          integration: lambda-proxy
+  processSignin:
+    handler: handler.processSignin
+    memorySize: 256
+    timeout: 15
+    events:
+      - http:
+          path: authentication/process/signin
+          method: get
+          integration: lambda-proxy
+  processSignup:
+    handler: handler.processSignup
+    memorySize: 256
+    timeout: 15
+    events:
+      - http:
+          path: authentication/process/signup
+          method: post
+          integration: lambda-proxy
   signin:
     handler: handler.signin
     memorySize: 256
@@ -108,7 +135,19 @@ custom:
     endpointType: 'regional'
     securityPolicy: tls_1_2
     enabled: true
-
+  serverless-offline:
+    port: 4080
+  deployType: Canary10Percent5Minutes
+  deploymentSettings:
+    stages:
+      - asem
+  prune:
+    automatic: true
+    number: 5
+  splitStacks:
+    perFunction: false
+    perType: true
+    
 resources:
   Description: ${self:provider.environment.SERVICE} [${self:provider.environment.STAGE}] template
   Resources:

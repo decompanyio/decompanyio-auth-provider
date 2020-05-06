@@ -1,0 +1,93 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Signin/Signup - Polarishare</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+</head>
+<body>
+    <div>
+        <div class="signin">
+            <h2>Sign-in</h2>
+            <hr/>
+            <div><input type="text" id="email" placeholder="email" value="jay@polarishare.com"/></div>
+            <div><input type="password" id="password" placeholder="password" value="1234" /></div>
+            <div><input id="signin" type="button" value="signin" /></div>
+        </div>
+        <div class="signup">
+            <h2>Sign-up</h2>
+            <hr/>
+            <div><input type="text" id="email" placeholder="email"/></div>
+            <div><input type="password" id="password" placeholder="password"/></div>
+            <div><input type="password"  id="confirm" placeholder="confirm"/></div>
+            <div><input id="signup" type="button" value="signup" /></div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+
+const authenticationEndpoint = 'http://localhost:4080'
+
+function make_base_auth(email, pwd) {
+    var token = email + ":" + pwd
+    var hashedToken = btoa(token)
+    return `Basic ${hashedToken}`
+}
+function signin(){
+    const email = $('.signin #email').val()
+    const pwd = $('.signin #password').val()
+    console.log('id, password', email, pwd, make_base_auth(email, pwd))
+
+    $.ajax({
+      method: 'GET',
+      url : `${authenticationEndpoint}/authentication/process`,
+      headers: {
+        Authorization: make_base_auth(email, pwd)
+      }
+    })
+    .done((data) => {
+      console.log('done')
+
+      if(data.url){
+        console.log('redirect to', data.url)
+        location.href = data.url
+      }
+      
+    })
+    .error((err) => {
+      console.log('fail', err)
+    })
+
+}
+
+function signup() {
+  const email = $('.signup #email').val()
+  const pwd = $('.signup #password').val()
+  const confirm = $('.signup #confirm').val()
+  console.log('id, password', email, pwd, make_base_auth(email, pwd))
+
+  if(pwd !== confirm){
+    throw new Error('pwd and confirm are not the same string.')
+  }
+
+  $.ajax({
+    method: 'POST',
+    url : `${authenticationEndpoint}/authentication/process/signup`,
+    data: {
+      email,
+      pwd
+    }
+  })
+  .done((data) => {
+    console.log('done', JSON.stringify(data.body))
+  })
+  .error((err) => {
+    console.log('fail', err)
+  })
+}
+$('.signin #signin').on('click', signin)
+$('.signup #signup').on('click', signup)
+</script>

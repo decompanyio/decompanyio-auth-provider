@@ -2,18 +2,21 @@
 // Config
 const { config, utils } = require('serverless-authentication')
 
+const cookieUtil = require('cookie')
+
 // Providers
 const facebook = require('serverless-authentication-facebook')
 // const google = require('serverless-authentication-google')
 const microsoft = require('serverless-authentication-microsoft')
 // const crypto = require('crypto')
 const customGoogle = require('../custom-google')
+const emailPassword = require('../email-password')
 
 // Common
 const cache = require('../storage/cacheStorage')
 const users = require('../storage/usersStorage')
 
-const { createResponseData } = require('../helpers')
+const { createResponseData } = require('../utils/helpers')
 const { getTokenSecret } = require('../utils/token')
 
 let tokenSecret;
@@ -64,7 +67,7 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
   let custom_redirect_url
   try {
     const { opts } = await cache.revokeState(state)
-    const { returnUrl, redirectUrl } = opts
+    const { returnUrl, redirectUrl } = opts?opts:{}
     // console.log('callback handleResponse', returnUrl, opts)
     const redirect_client_uris = providerConfig.redirect_client_uris?providerConfig.redirect_client_uris:[]
     if( redirectUrl && !redirect_client_uris.includes(redirectUrl) ){
@@ -85,6 +88,7 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
       tokenSecret
     )
     */
+   
     const id = profile.id
 
     const data = createResponseData(id, providerConfig)
@@ -109,7 +113,7 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
 
     const expiredAt = Math.floor(Date.now() / 1000) + Number(providerConfig.expires_in || 15)
     // console.log(Math.floor(Date.now() / 1000), Number(providerConfig.expires_in || 15))
-    const arg1 = Object.assign(data, { refreshToken: result, expiredAt, returnUrl })
+    let arg1 = Object.assign(data, { refreshToken: result, expiredAt, returnUrl })
 
     if (!arg1.returnUrl) {
       delete arg1.returnUrl
@@ -134,6 +138,7 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
  */
 async function callbackHandler(proxyEvent) {
   const event = {
+    Cookie: cookieUtil.parse(proxyEvent.headers.Cookie),
     provider: proxyEvent.pathParameters.provider,
     stage: proxyEvent.requestContext.stage,
     host: proxyEvent.headers.Host,
@@ -156,8 +161,12 @@ async function callbackHandler(proxyEvent) {
       response = await microsoft.callbackHandler(event, providerConfig)
       break
     case 'custom-google':
-      // See ./customGoogle.js
+      // See ./custom-google.js
       response = await customGoogle.callbackHandler(event, providerConfig)
+      break
+    case 'email':
+      // See ./email-password.js
+      response = await emailPassword.callbackHandler(event, providerConfig)
       break
     default:
       return errorResponse({ error: 'Invalid provider' })

@@ -16,6 +16,7 @@ const policyContext = (data) => {
 
 // Authorize
 const authorize = async (event) => {
+
   const stage = event.methodArn.split('/')[1] || 'dev' // @todo better implementation
   let error = null
   let policy

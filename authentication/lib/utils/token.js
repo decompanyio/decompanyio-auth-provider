@@ -1,7 +1,12 @@
 const AWS = require('aws-sdk')
 const kms = new AWS.KMS({region: process.env.REGION})
-console.log('process.env.REGION', process.env.REGION)
+const STAGE = process.env.STAGE
+
 module.exports.getTokenSecret = async (decodedTokenSecret) => {
+
+  if(STAGE === 'local'){
+    return Promise.resolve(decodedTokenSecret)
+  }
 
   return new Promise((resolve, reject) => {
     const params = {

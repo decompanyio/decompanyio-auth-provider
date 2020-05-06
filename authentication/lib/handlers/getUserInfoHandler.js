@@ -8,10 +8,10 @@ module.exports = getUserInfo
 async function getUserInfo(event, callback) {
 
   const { principalId } = event.requestContext.authorizer
-
+  console.log('principalId', principalId)
   const user = await users.getUser(principalId)
-  // console.log("user", user.Items[0])
-  const item = user.Items[0]
+   console.log("user", user)
+  const item = user
   if ( item['_raw'] ) {
     delete item['_raw']
   }
