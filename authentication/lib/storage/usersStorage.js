@@ -38,7 +38,16 @@ const getUser = async (id) => {
   return mongoUser.getUser(id)
 }
 
+const getUserProviderEmail = async (email) => {
+  if (!email) {
+    return Promise.reject(new Error('Invalid email'))
+  }
+
+  return mongoUser.getUserProviderEmail(email)
+}
+
 module.exports = {
   saveUser,
-  getUser
+  getUser,
+  getUserProviderEmail
 }

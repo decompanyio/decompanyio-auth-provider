@@ -38,6 +38,7 @@ const authorize = async (event) => {
 
       const data = utils.readToken(authorizationToken, TOKEN_SECRET)
       policy = utils.generatePolicy(data.id, 'Allow', event.methodArn)
+      console.log('authorizer data', data, policy)
       policy.context = policyContext(data)
     } catch (err) {
       // eslint-disable-next-line no-console

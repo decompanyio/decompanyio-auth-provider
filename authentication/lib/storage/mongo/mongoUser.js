@@ -18,7 +18,6 @@ const sanitize = (obj) => {
 
 const saveUser = async (profile) => {
   const params = Object.assign({_id: profile.id, createdAt: new Date()}, sanitize(profile))
-
   return new Promise((resolve, reject)=>{
     db.collection(USERS_DB_NAME).save(params, (err, data)=>{
       if(err){
@@ -29,6 +28,24 @@ const saveUser = async (profile) => {
     })
   })
 
+}
+
+const getUserProviderEmail = async (email) => {
+  
+  const params = {
+    provider: 'email',
+    email: email
+  }
+  
+  return new Promise((resolve, reject)=>{
+    db.collection(USERS_DB_NAME).findOne(params, (err, data)=>{
+      if(err){
+        reject(err)
+      } else {
+        resolve(data)
+      }
+    })
+  })
 }
 
 const getUser = async (id) => {
@@ -50,5 +67,6 @@ const getUser = async (id) => {
 
 module.exports = {
   saveUser,
-  getUser
+  getUser,
+  getUserProviderEmail
 }

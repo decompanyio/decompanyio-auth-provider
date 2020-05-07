@@ -8,11 +8,15 @@ module.exports = getUserInfo
 async function getUserInfo(event, callback) {
 
   const { principalId } = event.requestContext.authorizer
-  console.log('principalId', principalId)
+  //console.log('principalId', principalId)
   const user = await users.getUser(principalId)
-   console.log("user", user)
+  //console.log("user", user)
+
+  if(!user || !user._id) {
+    throw new Error(`user is not exist : ${principalId}`)
+  }
   const item = user
-  if ( item['_raw'] ) {
+  if ( item && item['_raw'] ) {
     delete item['_raw']
   }
   return {

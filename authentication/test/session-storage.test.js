@@ -26,11 +26,7 @@ describe('redis test', () => {
 
     it('get session with cookie', async () => {
 
-      const result = await sessionStorage.getSession({
-        headers: {
-          Cookie: "_PSSESSIONID=test.session.key"
-        }
-      })
+      const result = await sessionStorage.getSession(test.session.key)
 
       console.log('get session', result)
     })
@@ -38,7 +34,7 @@ describe('redis test', () => {
         
     it('get session no cookie', async () => {
 
-      const result = await sessionStorage.getSession({})
+      const result = await sessionStorage.getSession('')
 
       console.log('get session', result)
     })    

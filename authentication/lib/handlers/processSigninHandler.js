@@ -1,9 +1,12 @@
 const cookieUtil = require('cookie')
 const sessionStorage = require('../storage/sessionStorage')
+const users = require('../storage/usersStorage')
 const helpers = require('../utils/helpers')
+const responseUtils = require('../utils/responseUtils')
 const REDIRECT_DOMAIN_NAME = process.env.REDIRECT_DOMAIN_NAME
+const SESSION_ID = process.env.SESSION_ID
 /**
- * Signup Handler
+ * Signin Handler
  * @param proxyEvent
  * @param context
  */
@@ -11,15 +14,28 @@ async function processSignin(proxyEvent, cb) {
   
   let event = {
     Authorization: proxyEvent.headers.Authorization,
-    Cookie: cookieUtil.parse(proxyEvent.headers.Cookie),
+    Cookie: cookieUtil.parse(proxyEvent.headers.Cookie?proxyEvent.headers.Cookie:''),
   }
   
-  let session = await sessionStorage.getSession(event.Cookie)
-  if(session && session.isSigned){
+  let session = await sessionStorage.getSession(event.Cookie?event.Cookie[SESSION_ID]:null)
+  if(session && session.isSigned === true){
     console.log('alreadly sigined', JSON.stringify(session))
   } else {
     const loginInfo = await doLogin(event)
     console.log('current sigined', JSON.stringify(loginInfo))
+    if(loginInfo.error) {
+
+      return responseUtils.createSessionCookieResponse(session, {
+        header: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          error: loginInfo.error
+        })
+      })
+
+    }
+
     if(loginInfo.isSigned === true) {
       session = Object.assign(session, loginInfo)
       await sessionStorage.setSession(session.id, session)
@@ -27,16 +43,20 @@ async function processSignin(proxyEvent, cb) {
     
   }
   
-  const schema = process.env.stage === 'local'?'http':'https'
+  const schema = helpers.getSchema()
   const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/email`
   
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
+  return responseUtils.createSessionCookieResponse(session, {
+    header: {
+      'Content-Type': 'application/json'
+    },
+    body: {
       session,
       url
-    })
-  }
+    }
+  })
+  
+
 }
 
 async function doLogin(event){
@@ -45,25 +65,30 @@ async function doLogin(event){
   const tokens = Buffer.from(token, "base64").toString().split(':')
   const email  = tokens[0]
   const pwd  = tokens[1]
-  return await authUser(email, pwd)
+  
+  return await comparePassword(email, pwd)
+  
 }
 
-function authUser(email, pwd) {
+function comparePassword(email, pwd) {
 
-  return new Promise((resolve, reject)=>{
+  return new Promise(async (resolve, reject)=>{
     //db auth 필요
-    if(email === 'jay@polarishare.com' && pwd === '1234'){
+    const savedUser = await users.getUserProviderEmail(email)
+    const hashedPwd = helpers.sha512(pwd)
+    if(savedUser && savedUser.pwd && savedUser.pwd === hashedPwd){
       // success
-      const authedData = {
-        userId: helpers.makePSUserId(email),
-        email,
-        isSigned: true,
-        signed: Date.now()
-      }
-      resolve(authedData)
+      resolve(Object.assign({
+        email: savedUser.email,
+        userId: savedUser._id,
+        createdAt: new Date(savedUser.created),
+        provider: savedUser.provider
+      }, {isSigned: true}))
     } else {
       // fail
-      resolve({})
+      resolve({
+        error: 'The account is incorrect.'
+      })
     }
   })
   

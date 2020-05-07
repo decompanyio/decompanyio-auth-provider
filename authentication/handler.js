@@ -16,12 +16,12 @@ module.exports.refresh = async (event) => refreshHandler(event)
 
 module.exports.authorize = async (event) => authorizeHandler(event)
 
-module.exports.schema = (event, context, cb) => setupSchemaHandler(event, cb)
+module.exports.schema = async (event, context, cb) => setupSchemaHandler(event, cb)
 
-module.exports.userinfo = (event, context, cb) => getUserInfoHandler(event, cb)
+module.exports.userinfo = async (event, context, cb) => getUserInfoHandler(event, cb)
 
-module.exports.processSignin = (event, context, cb) => processSignin(event, cb)
+module.exports.processSignin = async (event, context, cb) => processSignin(event, cb)
 
-module.exports.processSignup = (event, context, cb) => processSignupHandler(event, cb)
+module.exports.processSignup = async (event, context, cb) => processSignupHandler(event, cb)
 
-module.exports.main = (event, context, cb) => mainHandler(event, cb)
+module.exports.main = async (event, context, cb) => mainHandler(event, cb)

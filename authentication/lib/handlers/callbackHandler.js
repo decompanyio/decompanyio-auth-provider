@@ -80,15 +80,6 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
       tokenSecret = await getTokenSecret(Buffer.from(providerConfig.token_secret, 'base64'))
     }
     
-    // console.log(JSON.stringify(profile))
-
-    /*
-    const id = createUserId(
-      `${profile.provider}-${profile.id}`,
-      tokenSecret
-    )
-    */
-   
     const id = profile.id
 
     const data = createResponseData(id, providerConfig)

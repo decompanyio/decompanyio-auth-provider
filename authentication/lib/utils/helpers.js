@@ -33,8 +33,13 @@ const sanitize = (obj) => {
   return clone
 }
 
+const sha512 = (str, digest) => {
+  const hashed = crypto.createHash('sha512').update(str).digest(digest?digest:'base64') 
+  return hashed
+}
+
 const makePSUserId = (email) =>{
-  //const id = crypto.createHash('sha256').update(email).digest('hex') 
+  
   const id = createId()
   return 'ps-auth2|' + id
 }
@@ -46,12 +51,17 @@ const urlParams = (params) => {
   return result.join('&')
 }
 
+const getSchema = () => {
+  return process.env.STAGE === 'local'?'http':'https'
+}
 module.exports = {
   createResponseData,
   log,
   sanitize,
+  sha512,
   makePSUserId,
-  urlParams
+  urlParams,
+  getSchema
 }
 
 
