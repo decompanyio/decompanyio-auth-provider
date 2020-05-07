@@ -20,7 +20,7 @@ const errorSessionCookieResponse = (session, {header, body}) =>{
   return {
     statusCode: 500,
     headers: Object.assign({
-      'Content-Type': 'text/html',
+      'Content-Type': 'application/json',
       'Set-Cookie': `${SESSION_ID}=${session.id};HttpOnly;Path=/;`
     }, header),
     body: JSON.stringify({

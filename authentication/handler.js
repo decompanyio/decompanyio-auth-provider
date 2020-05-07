@@ -5,6 +5,7 @@ const authorizeHandler = require('./lib/handlers/authorizeHandler')
 const getUserInfoHandler = require('./lib/handlers/getUserInfoHandler')
 const processSignin = require('./lib/handlers/processSigninHandler')
 const processSignupHandler = require('./lib/handlers/processSignupHandler')
+const signoutHandler = require('./lib/handlers/signoutHandler')
 const mainHandler = require('./lib/handlers/mainHandler')
 const { setupSchemaHandler } = require('./lib/storage/fauna/faunaUser')
 
@@ -25,3 +26,5 @@ module.exports.processSignin = async (event, context, cb) => processSignin(event
 module.exports.processSignup = async (event, context, cb) => processSignupHandler(event, cb)
 
 module.exports.main = async (event, context, cb) => mainHandler(event, cb)
+
+module.exports.signout = async (event, context, cb) => signoutHandler(event, cb)

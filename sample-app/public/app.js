@@ -122,7 +122,9 @@ function saveResponse(authorization_token, refresh_token, expired_at) {
 
   $('#token').html(`authorization_token: ${localStorage.getItem('authorization_token')}<hr>refresh_token: ${localStorage.getItem('refresh_token')}<hr>expiredAt: ${localStorage.getItem('expired_at')}`)
 }
-
+function getLogoutUrl() {
+  return `${authenticationEndpoint}/authentication/signout`
+}
 function getPathFromUrl(url) {
   return url.split(/[?#]/)[0]
 }
@@ -200,7 +202,8 @@ $(() => {
     localStorage.removeItem('authorization_token')
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('email')
-    window.location.href = getPathFromUrl(window.location.href)
+    //window.location.href = getPathFromUrl(window.location.href)
+    window.location.href = getLogoutUrl()
   })
 
   const query = getQueryParams(document.location.search)

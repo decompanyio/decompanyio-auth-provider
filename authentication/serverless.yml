@@ -67,6 +67,15 @@ functions:
           path: authentication/process/signup
           method: post
           integration: lambda-proxy
+  signout:
+    handler: handler.signout
+    memorySize: 256
+    timeout: 15
+    events:
+      - http:
+          path: authentication/signout
+          method: get
+          integration: lambda-proxy
   signin:
     handler: handler.signin
     memorySize: 256

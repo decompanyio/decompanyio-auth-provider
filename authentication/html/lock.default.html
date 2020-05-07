@@ -267,7 +267,7 @@ input:-ms-input-placeholder {
     <div class="l_container">
         <div class="l_component">
             <div class="l_logoWrapper">
-                <a href="https://www.polarishare.com" target="_blank" rel="noopener noreferrer nofollow">
+                <a href="https://polarishare.com" target="_blank" rel="noopener noreferrer nofollow">
                     <img src="https://res.share.decompany.io/static/image/logo.png" class="l_logo" alt="logo"/>
                 </a>
             </div>
@@ -276,16 +276,15 @@ input:-ms-input-placeholder {
             <div class="l_btnWrapper">
 
                 <!--Google Login-->
-                <div class="ab_container mb-3" id="google">
+                <div class="ab_container mb-3">
                     <div class="ab_wrapper"></div>
                     <div class='ab_iconContainer ab_iconContainer_google'>
                         <img src='https://res.share.decompany.io/static/image/auth/ic_auth_google.png' alt="Google"/>
                     </div>
                     <div class='ab_providerName ab_providerName_google'>
-                        Google
+                        구글 로그인
                     </div>
                 </div>
-
             </div>
 
             <div class="l_hr">
@@ -294,36 +293,36 @@ input:-ms-input-placeholder {
             </div>
 
             <div class="s_tabContainer">
-                <div class="s_click" id="signIn">Sign-in</div>
-                <div id="signUp">Join</div>
+                <div class="s_click" id="signIn">로그인</div>
+                <div id="signUp">회원가입</div>
             </div>
 
             <div class="s_container" id="sContainer">
                 <label>
-                    <input type="email" placeholder="Email" id="loginEmailInput"/>
+                    <input type="email" placeholder="이메일" id="loginEmailInput"/>
                 </label>
                 <label>
-                    <input type="password" placeholder="Password" id="loginPWInput"/>
+                    <input type="password" placeholder="비밀번호" id="loginPWInput"/>
                 </label>
 
                 <div class="s_btnWrapper">
-                    <button type="button" id="loginButton">Sign-in</button>
+                    <button type="button" id="loginButton">로그인</button>
                 </div>
             </div>
 
             <div class="s_container" id="sContainer2" style="display: none">
                 <label>
-                    <input type="email" placeholder="Email" id="signUpEmailInput"/>
+                    <input type="email" placeholder="이메일" id="signUpEmailInput"/>
                 </label>
                 <label>
-                    <input type="password" placeholder="Password" id="signUpPWInput"/>
+                    <input type="password" placeholder="비밀번호" id="signUpPWInput"/>
                 </label>
                 <label>
-                    <input type="password" placeholder="Confirm" id="signUpPWConfirmInput"/>
+                    <input type="password" placeholder="비밀번호 확인" id="signUpPWConfirmInput"/>
                 </label>
 
                 <div class="s_btnWrapper">
-                    <button type="button" id="signUpButton">Join</button>
+                    <button type="button" id="signUpButton">회원가입</button>
                 </div>
             </div>
 
@@ -338,81 +337,6 @@ input:-ms-input-placeholder {
     "use strict";
 
     $(function () {
-
-
-      const authenticationEndpoint = 'http://localhost:4080'
-
-      function make_base_auth(email, pwd) {
-          var token = email + ":" + pwd
-          var hashedToken = btoa(token)
-          return `Basic ${hashedToken}`
-      }
-      function signin(){
-          const email = $('#loginEmailInput').val()
-          const pwd = $('#loginPWInput').val()
-          console.log('id, password', email, pwd, make_base_auth(email, pwd))
-
-          $.ajax({
-            method: 'GET',
-            url : `${authenticationEndpoint}/authentication/process/signin`,
-            headers: {
-              Authorization: make_base_auth(email, pwd)
-            }
-          })
-          .done((data) => {
-            console.log('done', JSON.stringify(data))
-            if(data.error){
-              console.error(data.error)
-            }
-            if(data.url){
-              console.log('redirect to', data.url)
-              location.href = data.url
-            }
-            
-          })
-          .error((err) => {
-            console.log('fail', err)
-          })
-
-      }
-
-      function signup() {
-        const email = $('#signUpEmailInput').val()
-        const pwd = $('#signUpPwInput').val()
-        const confirm = $('#signUpPWConfirmInput').val()
-        console.log('id, password', email, pwd, make_base_auth(email, pwd))
-
-        if(pwd !== confirm){
-          throw new Error('pwd and confirm are not the same string.')
-        }
-
-        $.ajax({
-          method: 'POST',
-          url : `${authenticationEndpoint}/authentication/process/signup`,
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          dataType: "json",
-          data: JSON.stringify({
-            email,
-            pwd
-          })
-        })
-        .done((data) => {
-          console.log('done', JSON.stringify(data.body))
-        })
-        .error((err) => {
-          console.log('fail', err)
-        })
-      }
-
-      function providerSignin(event){
-        //console.log('providerSignin', event)
-        const provider = $(event.currentTarget).attr('id')
-        //console.log(provider)
-        window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}?redirectUrl=http://127.0.0.1:3000/callback`
-      }
-
 
         /* SIGN IN TAB SCRIPT */
         $('#signIn').click(function () {
@@ -429,9 +353,35 @@ input:-ms-input-placeholder {
             $('#signIn').removeClass('s_click')
         })
 
-        $('.ab_container.mb-3').on('click', providerSignin)
-        $('.s_btnWrapper #loginButton').on('click', signin)
-        $('.s_btnWrapper #signUpButton').on('click', signup)
+        /* SIGN IN SCRIPT */
+        $('#loginEmailInput').keyup(function () {
+            console.log($('#loginEmailInput').val())
+        })
+
+        $('#loginPWInput').keyup(function () {
+            console.log($('#loginPWInput').val())
+        })
+
+        $('#loginButton').click(function () {
+            console.log("click login button")
+        })
+
+        /* SIGN UP SCRIPT */
+        $('#signUpEmailInput').keyup(function () {
+            console.log($('#signUpEmailInput').val())
+        })
+
+        $('#signUpPWInput').keyup(function () {
+            console.log($('#signUpPWInput').val())
+        })
+
+        $('#signUpPWConfirmInput').keyup(function () {
+            console.log($('#signUpPWConfirmInput').val())
+        })
+
+        $('#signUpButton').click(function () {
+            console.log("click login button")
+        })
     })
 })()
 
