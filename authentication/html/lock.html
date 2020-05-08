@@ -260,6 +260,13 @@ input:-ms-input-placeholder {
     border: none;
     border-radius: 3px;
 }
+
+.caution_msg {
+    font-size: 0.8rem;
+    color: red;
+    padding: 0 20px;
+    margin: 0.2rem 0;
+}
     </style>
 </head>
 <body>
@@ -305,10 +312,10 @@ input:-ms-input-placeholder {
                 <label>
                     <input type="password" placeholder="Password" id="loginPWInput"/>
                 </label>
-
                 <div class="s_btnWrapper">
                     <button type="button" id="loginButton">Sign-in</button>
                 </div>
+                <div class="caution_msg" id='loginResultMsg'></div>
             </div>
 
             <div class="s_container" id="sContainer2" style="display: none">
@@ -321,10 +328,11 @@ input:-ms-input-placeholder {
                 <label>
                     <input type="password" placeholder="Confirm" id="signUpPWConfirmInput"/>
                 </label>
-
+     
                 <div class="s_btnWrapper">
                     <button type="button" id="signUpButton">Join</button>
                 </div>
+                <div class="caution_msg" id='signUpResultMsg'></div>
             </div>
 
         </div>
@@ -339,19 +347,17 @@ input:-ms-input-placeholder {
 
     $(function () {
 
-
       const authenticationEndpoint = 'http://localhost:4080'
 
       function make_base_auth(email, pwd) {
-          var token = email + ":" + pwd
+          var token = encodeURIComponent(email) + ":" + encodeURIComponent(pwd)
           var hashedToken = btoa(token)
           return `Basic ${hashedToken}`
       }
       function signin(){
           const email = $('#loginEmailInput').val()
           const pwd = $('#loginPWInput').val()
-          console.log('id, password', email, pwd, make_base_auth(email, pwd))
-
+          
           $.ajax({
             method: 'GET',
             url : `${authenticationEndpoint}/authentication/process/signin`,
@@ -363,12 +369,12 @@ input:-ms-input-placeholder {
             console.log('done', JSON.stringify(data))
             if(data.error){
               console.error(data.error)
+              $('#loginResultMsg').html(data.error)
             }
             if(data.url){
               console.log('redirect to', data.url)
               location.href = data.url
-            }
-            
+            }            
           })
           .error((err) => {
             console.log('fail', err)
@@ -378,12 +384,12 @@ input:-ms-input-placeholder {
 
       function signup() {
         const email = $('#signUpEmailInput').val()
-        const pwd = $('#signUpPwInput').val()
+        const pwd = $('#signUpPWInput').val()
         const confirm = $('#signUpPWConfirmInput').val()
-        console.log('id, password', email, pwd, make_base_auth(email, pwd))
 
         if(pwd !== confirm){
-          throw new Error('pwd and confirm are not the same string.')
+            $('#signUpResultMsg').html('password and confirm are not the same string.')
+          throw new Error('password and confirm are not the same string.')
         }
 
         $.ajax({
@@ -399,10 +405,11 @@ input:-ms-input-placeholder {
           })
         })
         .done((data) => {
-          console.log('done', JSON.stringify(data.body))
+          console.log('done', JSON.stringify(data.responseJSON))
         })
         .error((err) => {
-          console.log('fail', err)
+          console.log('fail', err.responseJSON)
+          $('#signUpResultMsg').html(err.responseJSON.error)
         })
       }
 

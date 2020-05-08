@@ -32,7 +32,7 @@ const saveUser = async (profile) => {
 
 const getUser = async (id) => {
   if (!id) {
-    return Promise.reject(new Error('Invalid id'))
+    throw new Error('Invalid user id')
   }
 
   return mongoUser.getUser(id)
@@ -40,7 +40,7 @@ const getUser = async (id) => {
 
 const getUserProviderEmail = async (email) => {
   if (!email) {
-    return Promise.reject(new Error('Invalid email'))
+    throw new Error('Invalid email')
   }
 
   return mongoUser.getUserProviderEmail(email)

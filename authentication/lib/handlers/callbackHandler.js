@@ -15,12 +15,13 @@ const emailPassword = require('../email-password')
 // Common
 const cache = require('../storage/cacheStorage')
 const users = require('../storage/usersStorage')
+const sessionStorage = require('../storage/sessionStorage')
 
 const { createResponseData } = require('../utils/helpers')
 const { getTokenSecret } = require('../utils/token')
 
 let tokenSecret;
-
+const SESSION_ID = process.env.SESSION_ID
 /*
 function createUserId(data, secret) {
   const hmac = crypto.createHmac('sha256', secret)
@@ -63,7 +64,7 @@ function tokenResponse(data, providerConfig) {
  * @param profile
  * @param state
  */
-const handleResponse = async ({ profile, state }, providerConfig) => {
+const handleResponse = async ({ profile, state, sessionId }, providerConfig) => {
   let custom_redirect_url
   try {
     const { opts } = await cache.revokeState(state)
@@ -115,6 +116,9 @@ const handleResponse = async ({ profile, state }, providerConfig) => {
       Object.assign(providerConfig, { token_secret: tokenSecret, custom_redirect_url: custom_redirect_url })
     )
 
+    await sessionStorage.getSession(sessionId)
+    .then( (s) => sessionStorage.setSession(sessionId, Object.assign(s, {profile})))
+    
     return tokenRes
   } catch (exception) {
     console.error(exception)
@@ -137,7 +141,7 @@ async function callbackHandler(proxyEvent) {
     state: proxyEvent.queryStringParameters.state,
     error: proxyEvent.queryStringParameters.error
   }
-
+  const sessionId = event.Cookie?event.Cookie[SESSION_ID]:null
   const providerConfig = config(event)
   let response
   switch (event.provider) {
@@ -162,7 +166,8 @@ async function callbackHandler(proxyEvent) {
     default:
       return errorResponse({ error: 'Invalid provider' })
   }
-  return handleResponse(response, providerConfig)
+  
+  return handleResponse(Object.assign(response, { sessionId }), providerConfig)
 }
 
 module.exports = callbackHandler

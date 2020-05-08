@@ -4,10 +4,10 @@ const users = require('./storage/usersStorage')
 const helpers = require('./utils/helpers')
 const REDIRECT_DOMAIN_NAME=process.env.REDIRECT_DOMAIN_NAME
 const SESSION_ID = process.env.SESSION_ID
-const signinHandler = async (event, config, options) => {
+const signinHandler = async (config, options) => {
   //console.log('email-password signinHandler', JSON.stringify(event))
-  const {Cookie} = event;
-  const session = await sessionStorage.getSession(Cookie?Cookie[SESSION_ID]:null)
+  const {sessionId, state} = options;
+  const session = await sessionStorage.getSession(sessionId)
   //console.log('session', JSON.stringify(session))
   if(session && session.isSigned) {
     // 인증이 되어 있으면

@@ -11,7 +11,10 @@ const emailPassword = require('../email-password')
 // Common
 const cache = require('../storage/cacheStorage')
 const helpers = require('../utils/helpers')
+const responseUtils = require('../utils/responseUtils')
+const sessionStorage = require('../storage/sessionStorage')
 
+const SESSION_ID = process.env.SESSION_ID
 /**
  * Signin Handler
  * @param proxyEvent
@@ -20,7 +23,7 @@ const helpers = require('../utils/helpers')
 async function signinHandler(proxyEvent) {
   let event = {
     Authorization: proxyEvent.headers.Authorization,
-    Cookie: cookieUtil.parse(proxyEvent.headers.Cookie),
+    Cookie: cookieUtil.parse(proxyEvent.headers.Cookie?proxyEvent.headers.Cookie:''),
     provider: proxyEvent.pathParameters.provider,
     stage: proxyEvent.requestContext.stage,
     host: proxyEvent.headers.Host,
@@ -29,8 +32,12 @@ async function signinHandler(proxyEvent) {
     prompt: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.prompt : null,
     login_hint: proxyEvent.queryStringParameters ? proxyEvent.queryStringParameters.login_hint : null
   }
-  console.log('event', JSON.stringify(event))
+  //console.log('event', JSON.stringify(event))
   event = helpers.sanitize(event)
+  
+  const sessionId = event.Cookie?event.Cookie[SESSION_ID]:null
+  const session = await sessionStorage.getSession(sessionId)
+  //console.log('signinHandler session', JSON.stringify(session))
 
   const providerConfig = config(event)
   let data
@@ -51,12 +58,15 @@ async function signinHandler(proxyEvent) {
         break
       case 'google':
         const params = { state }
+        const { profile } = session;
         if(event.prompt){
-            params.prompt = event.prompt
+          params.prompt = event.prompt
+          //options for silent login 
+          if(event.prompt === 'none' && profile.email) {
+            params.login_hint = profile.email
+          }
         }
-        if(event.login_hint) {
-            params.login_hint = event.login_hint
-        }
+              
         data = customGoogle.signinHandler(providerConfig, params)
         break
       case 'microsoft':
@@ -66,8 +76,7 @@ async function signinHandler(proxyEvent) {
         })
         break
       case 'email':
-          data = await emailPassword.signinHandler(event, providerConfig, { state })
-          console.log('signin result', JSON.stringify(data))
+          data = await emailPassword.signinHandler(providerConfig, { state, sessionId })
           break
       default:
         data = utils.errorResponse(
@@ -81,13 +90,7 @@ async function signinHandler(proxyEvent) {
     data = utils.errorResponse({ exception }, providerConfig)
   }
 
-  console.log('signin result', JSON.stringify(data))
-  return {
-    statusCode: 302,
-    headers: {
-      Location: data.url
-    }
-  }
+  return responseUtils.createSessionCookieRedirectResponse(session, data.url)
 }
 
 module.exports = signinHandler

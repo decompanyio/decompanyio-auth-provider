@@ -1,34 +1,32 @@
 const { Provider, Profile } = require('serverless-authentication')
 
 const signinHandler = (config, options) => {
+  const { state, session } = options
   const customGoogle = new Provider(config)
   const signinOptions = options || {}
+  signinOptions.state = state
   signinOptions.signin_uri = 'https://accounts.google.com/o/oauth2/v2/auth'
   signinOptions.scope = 'openid profile email'
   signinOptions.response_type = 'code'
-  // signinOptions.response_type = 'token'
-  // signinOptions.access_type = 'offline'
   return customGoogle.signin(signinOptions)
 }
 
 const callbackHandler = async (event, config) => {
-  /*
+  
   if (event.error) {
-    console.log("error event", JSON.stringify(event))
-    throw new Error(event.error)
+    throw new Error(`${event.error}`)
   }
-  */
 
   const customGoogle = new Provider(config)
   const profileMap = (response) => {
     //console.log("profileMap", JSON.stringify(response))
     if (response.error) {
       console.log("error", response)
-      throw new Error(JSON.stringify(response.error))
+      return new Error(JSON.stringify(response.error))
     }
 
     if(!response.resourceName){
-      throw new Error('Error Getting Google ID')
+      return new Error('Error Getting Google ID')
     }
     const id = response.resourceName?response.resourceName.split('/')[1]:null;  
 

@@ -28,6 +28,8 @@ async function set(key, data, expireAtSec) {
       reject(new Error("args is invaild.."))
     }
     const strData = typeof(data) === 'string'?data:JSON.stringify(data)
+
+    //console.log('set session in redis', key, data, expireAtSec)
     if(!isNaN(expireAtSec) && expireAtSec > 0){
       redisCache.set(key, strData, "EX", expireAtSec, (err, res)=>{
           if(err){
@@ -36,12 +38,13 @@ async function set(key, data, expireAtSec) {
             resolve(res)
           }
         })
-      //console.log("expired at caching : " + key, expireAtSec)
+        console.log("expired at caching : " + key, expireAtSec)
     } else {
       redisCache.set(key, strData, (err, res) => {
           if(err){
             reject(err)
           } else {
+            console.log("Immortal caching : " + key, expireAtSec)
             resolve(res)
           }
         })

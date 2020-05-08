@@ -17,25 +17,17 @@ async function signout(proxyEvent, cb) {
   }
   
   let session = await sessionStorage.getSession(event.Cookie?event.Cookie[SESSION_ID]:null)
-
   if(session && session.id){
-    console.log('session removed!!')
-    await sessionStorage.removeSession(session.id)
+    session = await sessionStorage.revokeSession(session.id)
+    console.log('session revoke!!', JSON.stringify(session))
   } else {
     console.log('session is null')
   } 
   
   const schema = helpers.getSchema()
   const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication`
-  
-  return {
-    statusCode: 302,
-    headers: {
-      Location: url
-    }
-  }
-  
 
+  return responseUtils.createSessionCookieRedirectResponse(session, url)
 }
 
 
