@@ -1,15 +1,20 @@
-const SESSION_ID = process.env.SESSION_ID
+'use strict';
 
+const SESSION_ID = process.env.SESSION_ID
+const SESSION_TIMEOUT = Number(process.env.SESSION_TIMEOUT)
 const createSessionCookieResponse = (session, {
   header,
   body
 }) => {
- 
+  if(!session || !session.id){
+    throw new Error('session invaild')
+  }
+  const expireAt = new Date(Date.now() + SESSION_TIMEOUT * 1000)
   return {
     statusCode: 200,
     headers: Object.assign({
       'Content-Type': 'text/html',
-      'Set-Cookie': `${SESSION_ID}=${session.id};HttpOnly;Path=/;`
+      'Set-Cookie': `${SESSION_ID}=${session.id};HttpOnly;Path=/;expires=${expireAt.toGMTString()};max-age=${SESSION_TIMEOUT};`
     }, header),
     body: typeof(body) === 'string'?body:JSON.stringify(body)
   }
@@ -17,6 +22,11 @@ const createSessionCookieResponse = (session, {
 }
 
 const errorSessionCookieResponse = (session, {header, body}) =>{
+
+  if(!session || !session.id){
+    throw new Error('session invaild')
+  }
+
   return {
     statusCode: 500,
     headers: Object.assign({
