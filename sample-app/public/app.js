@@ -190,7 +190,7 @@ $(() => {
     // https://developers.google.com/identity/protocols/oauth2/web-server
     // prompt: [none, consent, select_account]
     if (provider === 'google-silent') {
-      window.location.href = `${authenticationEndpoint}/authentication/signin/google?prompt=none&login_hint=${localStorage.getItem('email')}&redirectUrl=http://127.0.0.1:3000/callback`
+      window.location.href = `${authenticationEndpoint}/authentication/signin/google?prompt=none&redirectUrl=http://127.0.0.1:3000/callback`
     } else {
       window.location.href = `${authenticationEndpoint}/authentication/signin/${provider}?redirectUrl=http://127.0.0.1:3000/callback`
       
