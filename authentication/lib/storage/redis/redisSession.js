@@ -38,13 +38,12 @@ async function set(key, data, expireAtSec) {
             resolve(res)
           }
         })
-        console.log("expired at caching : " + key, expireAtSec)
+        
     } else {
       redisCache.set(key, strData, (err, res) => {
           if(err){
             reject(err)
           } else {
-            console.log("Immortal caching : " + key, expireAtSec)
             resolve(res)
           }
         })

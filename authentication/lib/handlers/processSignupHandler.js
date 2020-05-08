@@ -26,7 +26,7 @@ async function processSignup(proxyEvent, cb) {
     if(session && sessionStorage.isSignined(session)){
       console.log('alreadly sign-up', JSON.stringify(session))
       const schema = helpers.getSchema();
-      const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/email`
+      const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/polarishare`
       return {
         statusCode: 302,
         headers: {

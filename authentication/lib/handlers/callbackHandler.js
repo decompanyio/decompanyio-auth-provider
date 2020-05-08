@@ -64,7 +64,7 @@ function tokenResponse(data, providerConfig) {
  * @param profile
  * @param state
  */
-const handleResponse = async ({ profile, state, sessionId }, providerConfig) => {
+const handleResponse = async ({ profile, state, sessionId, provider }, providerConfig) => {
   let custom_redirect_url
   try {
     const { opts } = await cache.revokeState(state)
@@ -117,7 +117,7 @@ const handleResponse = async ({ profile, state, sessionId }, providerConfig) => 
     )
 
     await sessionStorage.getSession(sessionId)
-    .then( (s) => sessionStorage.setSession(sessionId, Object.assign(s, {profile})))
+    .then( (s) => sessionStorage.setSession(sessionId, Object.assign(s, {profile, provider})))
     
     return tokenRes
   } catch (exception) {
@@ -159,7 +159,7 @@ async function callbackHandler(proxyEvent) {
       // See ./custom-google.js
       response = await customGoogle.callbackHandler(event, providerConfig)
       break
-    case 'email':
+    case 'polarishare':
       // See ./email-password.js
       response = await emailPassword.callbackHandler(event, providerConfig)
       break
@@ -167,7 +167,7 @@ async function callbackHandler(proxyEvent) {
       return errorResponse({ error: 'Invalid provider' })
   }
   
-  return handleResponse(Object.assign(response, { sessionId }), providerConfig)
+  return handleResponse(Object.assign(response, { sessionId, provider: event.provider }), providerConfig)
 }
 
 module.exports = callbackHandler

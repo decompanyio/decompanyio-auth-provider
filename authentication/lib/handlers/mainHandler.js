@@ -41,9 +41,9 @@ module.exports = async (proxyEvent, cb) => {
     }
 
     // go to 302 client redirect callback
-    // 로그인이 확인되었으면 access_token 발급을 위하여 /authentication/signin/email 보낸다.
+    // 로그인이 확인되었으면 access_token 발급을 위하여 /authentication/signin/polarishare 보낸다.
     const schema = helpers.getSchema()
-    const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/email`
+    const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/polarishare`
     return {
       statusCode: 302,
       headers: {

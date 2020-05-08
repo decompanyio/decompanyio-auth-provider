@@ -19,6 +19,9 @@ async function getUserInfo(event, callback) {
   if ( item && item['_raw'] ) {
     delete item['_raw']
   }
+  if ( item && item['pwd'] ) {
+    delete item['pwd']
+  }
   return {
     statusCode: 200,
     headers: {

@@ -20,18 +20,20 @@ const getSession = async (id) => {
       }
       
       let session = await redisSession.get(id)
-      const touch = await redisSession.touch(id)
-      const ttl = await redisSession.ttl(id)
-      console.log('get session', session, touch, ttl)
+
   
       if(!session){
-          session = JSON.stringify({
-            id: id,
-            created: Date.now()
-          })
-          await redisSession.set(id, session, Number(SESSION_TIMEOUT))
+        session = JSON.stringify({
+          id: id,
+          created: Date.now()
+        })
+        await redisSession.set(id, session, Number(SESSION_TIMEOUT))
+      } else {
+        const r1 = await redisSession.expire(id, SESSION_TIMEOUT)
+        //const r2 = await redisSession.ttl(id)
+        //console.log('get session', session, r1, r2)
       }
-  
+      
       resolve(typeof(session) === 'string'?JSON.parse(session):session)
     } catch(err){
       reject(err)
@@ -73,7 +75,7 @@ async function generateSessionId (cnt) {
         resolve(id)
       }
     })
-    .catch((err)=>reject)
+    .catch(reject)
     
   })
   

@@ -22,7 +22,6 @@ async function processSignin(proxyEvent, cb) {
     console.log('alreadly sigined', JSON.stringify(session))
   } else {
     const loginInfo = await doLogin(event)
-    console.log('current sigined', JSON.stringify(loginInfo))
     if(loginInfo.error) {
 
       return responseUtils.createSessionCookieResponse(session, {
@@ -37,6 +36,7 @@ async function processSignin(proxyEvent, cb) {
     }
 
     if(loginInfo.isSigned === true) {
+      console.log('sign-in success!!', JSON.stringify(loginInfo))
       session = Object.assign(session, loginInfo)
       await sessionStorage.setSession(session.id, session)
     }
@@ -44,7 +44,7 @@ async function processSignin(proxyEvent, cb) {
   }
   
   const schema = helpers.getSchema()
-  const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/email`
+  const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/polarishare`
   
   return responseUtils.createSessionCookieResponse(session, {
     header: {
@@ -63,8 +63,8 @@ async function doLogin(event){
   const {Authorization} = event;
   const token = Authorization.split(" ")[1] 
   const tokens = Buffer.from(token, "base64").toString().split(':')
-  const email  = tokens[0]
-  const pwd  = tokens[1]
+  const email  = decodeURIComponent(tokens[0])
+  const pwd  = decodeURIComponent(tokens[1])
   
   return await comparePassword(email, pwd)
   
@@ -76,6 +76,7 @@ function comparePassword(email, pwd) {
     //db auth 필요
     const savedUser = await users.getUserProviderEmail(email)
     const hashedPwd = helpers.sha512(pwd)
+    console.log(email, savedUser, hashedPwd)
     if(savedUser && savedUser.pwd && savedUser.pwd === hashedPwd){
       // success
       resolve(Object.assign({
