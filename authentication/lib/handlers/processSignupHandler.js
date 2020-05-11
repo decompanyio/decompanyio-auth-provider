@@ -70,7 +70,7 @@ async function doSignup(email, pwd) {
   }
 
   const created = Date.now();
-  const id = helpers.makePSUserId(email)
+  const id = await createPSUserId()
   return await users.saveUser({
     _id: id,
     email,
@@ -82,5 +82,18 @@ async function doSignup(email, pwd) {
   })
 }
 
+async function createPSUserId() {
+  return new Promise(async (resolve, reject)=>{
+    const id = helpers.makePSUserId()
+    const user = await users.getUser(id)
+    if(user){
+      resolve(await createPSUserId())
+    } else {
+      resolve(id)
+    }
+  })
+  
+}
 
 module.exports = processSignup
+//module.exports.createPSUserId = createPSUserId //for test.. process-signup.test.js

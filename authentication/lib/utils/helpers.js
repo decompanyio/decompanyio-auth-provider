@@ -38,7 +38,7 @@ const sha512 = (str, digest) => {
   return hashed
 }
 
-const makePSUserId = (email) =>{
+const makePSUserId = () =>{
   
   const id = createId()
   return 'ps-oauth2|' + id
