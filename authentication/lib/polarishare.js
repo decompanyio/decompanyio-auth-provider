@@ -5,15 +5,16 @@ const helpers = require('./utils/helpers')
 const REDIRECT_DOMAIN_NAME=process.env.REDIRECT_DOMAIN_NAME
 const SESSION_ID = process.env.SESSION_ID
 const signinHandler = async (config, options) => {
-  //console.log('email-password signinHandler', JSON.stringify(event))
+  
   const {sessionId, state} = options;
   const session = await sessionStorage.getSession(sessionId)
-  //console.log('session', JSON.stringify(session))
-  if(session && session.isSigned) {
+  const { provider, userInfo } = session
+  console.log('ps-oauth2 sign-in session', JSON.stringify(session))
+  if(session && userInfo && session.isSigned) {
     // 인증이 되어 있으면
-    const user = await users.getUser(session.userId)
+    const user = await users.getUser(userInfo.id)
     if(!user) {
-      throw new Error(`user is not exists : ${session.userId}`)
+      throw new Error(`user is not exists : ${userInfo.userId}`)
     }
     const {redirect_uri, provider} = config
     const {state} = options
@@ -52,24 +53,26 @@ const callbackHandler = async (event, config) => {
   const session = await sessionStorage.getSession(Cookie?Cookie[SESSION_ID]:null)
   const { state, provider } = event
 
-  let profile = {}
-  if(session && sessionStorage.isSignined(session)) {
-    profile = new Profile({
+  let {userInfo} = session
+  console.log('callbackHandler', JSON.stringify(session))
+  if(session && sessionStorage.isSignined(session) && userInfo) {
+    /*profile = new Profile({
       id: session.userId,
       email: session.email,
       provider
     })
+    */
   } else {
-    throw new Error('invaild Session Data')
+    throw new Error('Callback Error : invaild Session Data')
   }
 
-  const user = await users.getUser(session.userId)
+  const user = await users.getUser(userInfo.id)
   if(!user) {
-    throw new Error(`user is not exists : ${session.userId}`)
+    throw new Error(`Callback Error : user is not exists : ${userInfo.id}`)
   }
 
   return {
-    profile,
+    profile: userInfo,
     state,
   }
   

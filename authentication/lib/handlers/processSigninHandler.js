@@ -21,26 +21,28 @@ async function processSignin(proxyEvent, cb) {
   if(session && session.isSigned === true){
     console.log('alreadly sigined', JSON.stringify(session))
   } else {
-    const loginInfo = await doLogin(event)
-    if(loginInfo.error) {
+    const {userInfo, error} = await doLogin(event)
+    if(error) {
 
       return responseUtils.createSessionCookieResponse(session, {
         header: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          error: loginInfo.error
+          error: error
         })
       })
 
-    }
-
-    if(loginInfo.isSigned === true) {
-      console.log('sign-in success!!', JSON.stringify(loginInfo))
-      session = Object.assign(session, loginInfo)
+    } else {
+      console.log('sign-in success!!', JSON.stringify(userInfo))
+      session = Object.assign(session, { 
+        userInfo, 
+        isSigned: true, 
+        email: userInfo.email, 
+        provider: userInfo.provider 
+      })
       await sessionStorage.setSession(session.id, session)
     }
-    
   }
   
   const schema = helpers.getSchema()
@@ -66,27 +68,32 @@ async function doLogin(event){
   const email  = decodeURIComponent(tokens[0])
   const pwd  = decodeURIComponent(tokens[1])
   
-  return await comparePassword(email, pwd)
+  return await comparePassword({email, pwd, provider: 'polarishare'})
   
 }
 
-function comparePassword(email, pwd) {
+function comparePassword({email, pwd, provider}) {
 
   return new Promise(async (resolve, reject)=>{
     //db auth 필요
-    const savedUser = await users.getUserProviderEmail(email)
+    const savedUser = await users.getUserProviderEmail( {email, provider})
     const hashedPwd = helpers.sha512(pwd)
-    console.log(email, savedUser, hashedPwd)
+    //console.log(email, savedUser, hashedPwd)
+    
     if(savedUser && savedUser.pwd && savedUser.pwd === hashedPwd){
       // success
       resolve(Object.assign({
+        userInfo: {
+        id: savedUser._id,
         email: savedUser.email,
-        userId: savedUser._id,
         createdAt: new Date(savedUser.created),
         provider: savedUser.provider
-      }, {isSigned: true}))
+      }}, {success: true}))
     } else {
       // fail
+      if(!savedUser){
+        console.error('user is not exists :', email)
+      }
       resolve({
         error: 'The account is incorrect.'
       })

@@ -6,7 +6,7 @@ const facebook = require('serverless-authentication-facebook')
 // const google = require('serverless-authentication-google')
 const microsoft = require('serverless-authentication-microsoft')
 const customGoogle = require('../custom-google')
-const emailPassword = require('../email-password')
+const polarishare = require('../polarishare')
 
 // Common
 const cache = require('../storage/cacheStorage')
@@ -21,6 +21,7 @@ const SESSION_ID = process.env.SESSION_ID
  * @param context
  */
 async function signinHandler(proxyEvent) {
+  console.log(JSON.stringify(proxyEvent))
   let event = {
     Authorization: proxyEvent.headers.Authorization,
     Cookie: cookieUtil.parse(proxyEvent.headers.Cookie?proxyEvent.headers.Cookie:''),
@@ -37,7 +38,7 @@ async function signinHandler(proxyEvent) {
   
   const sessionId = event.Cookie?event.Cookie[SESSION_ID]:null
   const session = await sessionStorage.getSession(sessionId)
-  //console.log('signinHandler session', JSON.stringify(session))
+  console.log('signinHandler session', JSON.stringify(session))
 
   const providerConfig = config(event)
   let data
@@ -58,15 +59,14 @@ async function signinHandler(proxyEvent) {
         break
       case 'google':
         const params = { state }
-        const { profile } = session;
-        if(event.prompt){
+        const { userInfo } = session;
+        if(event.prompt && event.prompt === 'none' && userInfo.email){
           params.prompt = event.prompt
-          //options for silent login 
-          if(event.prompt === 'none' && profile.email) {
-            params.login_hint = profile.email
-          }
+          params.login_hint = userInfo.email
         }
-              
+        console.log('event', JSON.stringify(event))
+        console.log('google', JSON.stringify(session))
+        console.log('google params', JSON.stringify(params)) 
         data = customGoogle.signinHandler(providerConfig, params)
         break
       case 'microsoft':
@@ -75,8 +75,8 @@ async function signinHandler(proxyEvent) {
           state
         })
         break
-      case 'email':
-          data = await emailPassword.signinHandler(providerConfig, { state, sessionId })
+      case 'polarishare':
+          data = await polarishare.signinHandler(providerConfig, { state, sessionId })
           break
       default:
         data = utils.errorResponse(

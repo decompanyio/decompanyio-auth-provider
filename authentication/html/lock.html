@@ -342,12 +342,13 @@ input:-ms-input-placeholder {
 </html>
 
 <script>
+
   (function () {
     "use strict";
 
     $(function () {
 
-      const authenticationEndpoint = 'http://localhost:4080'
+      const authenticationEndpoint = '##AUTHENTICATION_ENDPOINT##'
 
       function make_base_auth(email, pwd) {
           var token = encodeURIComponent(email) + ":" + encodeURIComponent(pwd)

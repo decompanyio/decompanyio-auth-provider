@@ -43,7 +43,7 @@
     "deploy:dev": "sls deploy -s dev",
     "deploy:asem": "sls deploy -s asem",
     "test": "jest ./test",
-    "mongo": "docker run --rm  -p 27017:27017 mongo:4.0",
-    "redis": "docker run --rm  -p 6379:6379 redis"
+    "mongo": "docker run --rm -d -p 27017:27017 mongo:4.0",
+    "redis": "docker run --rm -d -p 6379:6379 redis"
   }
 }

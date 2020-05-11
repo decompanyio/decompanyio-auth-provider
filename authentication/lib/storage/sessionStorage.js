@@ -59,7 +59,7 @@ const setSession = async (key, session) => {
   
 const isSignined = (session) => {
 
-  return session.userId && session.userId.startsWith('ps-auth2|') && session.id && session.email && session.isSigned === true;
+  return session && session.userInfo && session.id && session.isSigned === true;
 }
 
 async function generateSessionId (cnt) {

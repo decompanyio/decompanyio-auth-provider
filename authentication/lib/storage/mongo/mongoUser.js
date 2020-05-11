@@ -30,10 +30,10 @@ const saveUser = async (profile) => {
 
 }
 
-const getUserProviderEmail = async (email) => {
+const getUserProviderEmail = async ({email, provider}) => {
   
   const params = {
-    provider: 'email',
+    provider: provider,
     email: email
   }
   

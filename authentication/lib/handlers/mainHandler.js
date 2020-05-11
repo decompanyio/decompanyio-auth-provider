@@ -14,7 +14,7 @@ const SESSION_ID = process.env.SESSION_ID
 const HTML_PATH = '../../html/lock.html'
 let HTML = null
 const REDIRECT_DOMAIN_NAME = process.env.REDIRECT_DOMAIN_NAME
-
+const AUTHENTICATION_ENDPOINT = process.env.AUTHENTICATION_ENDPOINT
 /**
  * Signin Handler
  * @param proxyEvent
@@ -30,20 +30,23 @@ module.exports = async (proxyEvent, cb) => {
 
   const session = await sessionStorage.getSession(event.Cookie?event.Cookie[SESSION_ID]:null)
   console.log('mainHandler session', JSON.stringify(session))
-
-  if(session && sessionStorage.isSignined(session)) {
-
-    const user = await users.getUser(session.userId)
+  const { provider, userInfo } = session
+  if(session && userInfo && provider) {
+    /**
+     * exeception
+     * session이 존재하나 user 정보가 지워진경우(탈퇴?) 처리 세션을 초기화 시킨다.
+     */
+    const user = await users.getUser(userInfo.id)
     if(!user){
-      return sessionStorage.removeSession(session.id)
-      .then(sessionStorage.getSession(event.Cookie))
+      return sessionStorage.revokeSession(session.id)
       .then( (s)=>gotoLoginForm(s))
     }
-
+    
     // go to 302 client redirect callback
     // 로그인이 확인되었으면 access_token 발급을 위하여 /authentication/signin/polarishare 보낸다.
     const schema = helpers.getSchema()
-    const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/polarishare`
+    const queryString = proxyEvent.queryStringParameters?helpers.urlParams(proxyEvent.queryStringParameters):{}
+    const url = `${schema}://${REDIRECT_DOMAIN_NAME}/authentication/signin/${provider}?${queryString}`
     return {
       statusCode: 302,
       headers: {
@@ -78,6 +81,7 @@ async function gotoLoginForm(session){
   //go to lock for sign-in
   //if(!HTML){
     HTML = await getLockHtml(HTML_PATH)
+    HTML = HTML.replace('##AUTHENTICATION_ENDPOINT##', AUTHENTICATION_ENDPOINT)
   //}
   return responseUtils.createSessionCookieResponse(session, {
     body: HTML

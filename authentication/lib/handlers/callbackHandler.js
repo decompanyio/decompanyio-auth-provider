@@ -10,7 +10,7 @@ const facebook = require('serverless-authentication-facebook')
 const microsoft = require('serverless-authentication-microsoft')
 // const crypto = require('crypto')
 const customGoogle = require('../custom-google')
-const emailPassword = require('../email-password')
+const polarishare = require('../polarishare')
 
 // Common
 const cache = require('../storage/cacheStorage')
@@ -117,7 +117,10 @@ const handleResponse = async ({ profile, state, sessionId, provider }, providerC
     )
 
     await sessionStorage.getSession(sessionId)
-    .then( (s) => sessionStorage.setSession(sessionId, Object.assign(s, {profile, provider})))
+    .then( (s) => sessionStorage.setSession(sessionId, Object.assign(s, {
+      userInfo: profile, 
+      provider
+    })))
     
     return tokenRes
   } catch (exception) {
@@ -160,8 +163,8 @@ async function callbackHandler(proxyEvent) {
       response = await customGoogle.callbackHandler(event, providerConfig)
       break
     case 'polarishare':
-      // See ./email-password.js
-      response = await emailPassword.callbackHandler(event, providerConfig)
+      // See ./polarishare.js
+      response = await polarishare.callbackHandler(event, providerConfig)
       break
     default:
       return errorResponse({ error: 'Invalid provider' })

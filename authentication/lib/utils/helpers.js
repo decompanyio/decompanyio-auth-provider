@@ -41,7 +41,7 @@ const sha512 = (str, digest) => {
 const makePSUserId = (email) =>{
   
   const id = createId()
-  return 'ps-auth2|' + id
+  return 'ps-oauth2|' + id
 }
 
 const urlParams = (params) => {

@@ -70,14 +70,13 @@ async function doSignup(email, pwd) {
   }
 
   const created = Date.now();
-  const userId = helpers.makePSUserId(email)
+  const id = helpers.makePSUserId(email)
   return await users.saveUser({
-    _id: userId,
-    userId,
+    _id: id,
     email,
     verify: false,
     pwd: helpers.sha512(pwd),
-    provider: 'email',
+    provider: 'polarishare',
     createdAt: new Date(created),
     created
   })
