@@ -21,7 +21,7 @@ const SESSION_ID = process.env.SESSION_ID
  * @param context
  */
 async function signinHandler(proxyEvent) {
-  console.log(JSON.stringify(proxyEvent))
+  
   let event = {
     Authorization: proxyEvent.headers.Authorization,
     Cookie: cookieUtil.parse(proxyEvent.headers.Cookie?proxyEvent.headers.Cookie:''),
@@ -49,6 +49,10 @@ async function signinHandler(proxyEvent) {
       login_hint: event.login_hint,
       redirectUrl: event.redirectUrl
     })
+
+    if(session.provider && event.provider !== session.provider){
+      throw new Error(`Not a current provider. : ${event.provider}`)
+    }
 
     switch (event.provider) {
       case 'facebook':
